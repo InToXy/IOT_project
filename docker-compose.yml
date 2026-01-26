@@ -1,71 +1,97 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  # --- BROKER MQTT (Le Transporteur) ---
-  mosquitto:
-    image: eclipse-mosquitto:2
-    container_name: iot_mosquitto
+  # --- REVERSE PROXY (Le Portier) ---
+  traefik:
+    image: traefik:v2.10
+    container_name: iot_traefik
     restart: always
-    ports:
-      # - "1883:1883" # Port Standard - DESACTIVE (utiliser 8883 TLS)
-      # - "9001:9001" # Port Websocket - DESACTIVE (utiliser 8883 TLS)
-      - "8883:8883" # Secure MQTT - SEUL PORT ACTIF
-    volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
 
-  # --- LOGIQUE & AUTOMATISATION (Le Cerveau) ---
-  node-red:
-    image: nodered/node-red:latest
-    container_name: iot_nodered
+      # Points d'entrée
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.influxdb.address=:8086"
+
+      # Redirection Globale HTTP -> HTTPS (Pour le domaine)
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+
+      # Certificats SSL (HTTP Challenge - Port 80 ouvert)
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+
+      # --- PASSAGE EN PROD (Ligne Staging commentée) ---
+      # Si tu as encore des soucis de certificat, décommente la ligne ci-dessous.
+      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+
+      - "--certificatesresolvers.myresolver.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8086:8086"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/letsencrypt:/letsencrypt
+
+  # --- DYNAMIC DNS ---
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: iot_duckdns
     restart: always
     environment:
-      - TZ=Europe/Paris
-    ports:
-      - "1880:1880"
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+      - LOG_FILE=false
     volumes:
-      - ./nodered/data:/data
-      - ./mosquitto/config/certs:/data/certs:ro
-    depends_on:
-      - mosquitto
-      - influxdb
+      - ./duckdns/config:/config
 
-  # --- BASE DE DONNÉES (La Mémoire) ---
+  # --- BASE DE DONNÉES ---
   influxdb:
     image: influxdb:2.7
     container_name: iot_influxdb
     restart: always
-    ports:
-      - "8086:8086"
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword # Change-le !
-      - DOCKER_INFLUXDB_INIT_ORG=maison
-      - DOCKER_INFLUXDB_INIT_BUCKET=plante_data
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=hRdqsdya7L2N5_Q4_AAjGodXxrjrvvMk4r_zyjKg92ZZS8S6Vmi792KXpAGxNYiVLfiQ9AADsaoEnUkdRYCXIQ==
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_INIT_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_INIT_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_INIT_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_INIT_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_INIT_ADMIN_TOKEN}
     volumes:
       - ./influxdb/data:/var/lib/influxdb2
-
-  # --- TABLEAU DE BORD (Le Visage) ---
-  grafana:
-    image: grafana/grafana-enterprise
-    container_name: iot_grafana
-    restart: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./grafana/data:/var/lib/grafana
-    depends_on:
-      - influxdb
+    env_file: .env
+    labels:
+      - "traefik.enable=true"
+      # Route pour l'accès distant sécurisé (Port 8086)
+      - "traefik.http.routers.influxdb.entrypoints=influxdb"
+      - "traefik.http.routers.influxdb.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.influxdb.tls.certresolver=myresolver"
+      - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
 
   # --- WEB APP (EcoGuardian) ---
   ecoguardian:
     build: ./ecoguardian-plant-monitor
     container_name: iot_ecoguardian
     restart: always
-    ports:
-      - "8080:80"
     depends_on:
       - influxdb
+    labels:
+      - "traefik.enable=true"
+
+      # ROUTEUR 1 : Accès Internet (HTTPS / Domaine)
+      - "traefik.http.routers.ecoguardian-secure.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.ecoguardian-secure.entrypoints=websecure"
+      - "traefik.http.routers.ecoguardian-secure.tls.certresolver=myresolver"
+
+      # ROUTEUR 2 : Accès Local (HTTP / IP ou Localhost) - Pour éviter la 404 en local
+      # Pas de redirection HTTPS ici pour ne pas bloquer l'accès local
+      - "traefik.http.routers.ecoguardian-local.rule=Host(`${LOCAL_IP}`) || Host(`localhost`)"
+      - "traefik.http.routers.ecoguardian-local.entrypoints=web"
+
+      # SERVICE : Où envoyer les requêtes ?
+      # IMPORTANT : C'est le port interne du conteneur (souvent 80 pour Nginx/Apache/Node)
+      - "traefik.http.services.ecoguardian.loadbalancer.server.port=80"

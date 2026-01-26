@@ -1,4 +1,4 @@
-# EcoGuardian - Un Campus qui vous comprend
+# EcoGuardian (Cloud & Infrastructure) - Un Campus qui vous comprend
 
 ![Logo ou Bannière](images/logo.png)
 
@@ -12,6 +12,29 @@ Le campus CESI lance un programme de modernisation numérique de ses bâtiments.
 Notre mission est de concevoir et livrer un système IoT complet, interconnecté, fiable, sécurisé, et capable de rendre un vrai service au quotidien. Ce n'est pas un terrain de jeu technologique, mais un banc d’essai pour une future solution industrialisable.
 
 ---
+
+### 🌍 Technologies Cloud & Infrastructure
+
+Cette architecture repose sur des composants robustes et automatisés pour garantir sécurité et accessibilité.
+
+#### 🚦 Traefik : Le Chef d'Orchestre (Reverse Proxy)
+Traefik est la pierre angulaire de notre accès distant. Il agit comme un **Reverse Proxy Edge** natif au Cloud.
+- **Routage Intelligent** : Il intercepte toutes les requêtes entrantes (Port 80/443) et les redirige vers le bon conteneur (Web App ou InfluxDB) en fonction du sous-domaine.
+- **Sécurité SSL/TLS Automatique** : Contrairement à un serveur web classique (Nginx/Apache) où la gestion des certificats est fastidieuse, Traefik discute nativement avec **Let's Encrypt**. Il génère et renouvelle automatiquement les certificats HTTPS pour notre domaine.
+- **Sécurité** : Il expose uniquement les points d'entrée nécessaires et protège l'infrastructure interne.
+
+#### 🦆 DuckDNS : L'Adresse Toujours Valide (Dynamic DNS)
+Dans un environnement résidentiel ou mobile (4G), l'adresse IP publique change régulièrement.
+- **Rôle** : DuckDNS est un service de DNS Dynamique (DDNS).
+- **Fonctionnement** : Un conteneur dédié vérifie périodiquement notre IP publique et, si elle change, met à jour instantanément les enregistrements DNS mondiaux.
+- **Bénéfice** : Cela garantit que `ecoguardian.duckdns.org` pointe toujours vers notre infrastructure, peu importe où elle est déployée ou si la box redémarre.
+
+#### 🗄️ InfluxDB : La Mémoire du Temps (Time Series Database)
+Base de données spécialisée pour les séries temporelloes.
+- **Pourquoi ?** : Les données IoT (température, humidité) sont des flux continus marquer temporellement. InfluxDB est optimisé pour écrire et lire ces données à haute fréquence.
+
+#### ⚛️ EcoGuardian Web : L'Interface (Vite + React)
+Application moderne servie par un serveur Nginx léger. Elle consomme l'API d'InfluxDB via un proxy sécurisé pour afficher les données temps réel aux utilisateurs.
 
 ## 🏗️ Architecture du Système
 
@@ -90,3 +113,22 @@ L'application web offre une vue synthétique et esthétique.
 ---
 
 *« Vous n’êtes pas là pour “brancher des fils”. Vous êtes là pour penser comme des concepteurs de systèmes critiques. »*
+
+---
+
+## 🛠️ Installation & Déploiement (Branche Infra/Deploy)
+
+Cette branche **« Cloud Simulation »** a pour objectif de déporter les services lourds (Base de données, Interface Web) hors des microcontrôleurs.
+
+**Philosophie de l'architecture :**
+- **Edge (Plantes)** : On garde uniquement la logique critique et les capteurs au plus près du vivant.
+- **Cloud (Ce serveur)** : On externalise le stockage (InfluxDB) et la visualisation (Web App) pour centraliser les données et offrir un accès distant sécurisé.
+
+Elle contient la configuration complète pour déployer cette infrastructure sur un serveur VPS ou un Raspberry Pi via **Docker**.
+
+### Pré-requis
+- Docker & Docker Compose
+- Ports 80, 443 et 8086 ouverts sur le routeur
+- Un nom de domaine (ex: DuckDNS)
+
+
