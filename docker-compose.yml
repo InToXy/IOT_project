@@ -94,4 +94,47 @@ services:
 
       # SERVICE : Où envoyer les requêtes ?
       # IMPORTANT : C'est le port interne du conteneur (souvent 80 pour Nginx/Apache/Node)
+      # SERVICE : Où envoyer les requêtes ?
+      # IMPORTANT : C'est le port interne du conteneur (souvent 80 pour Nginx/Apache/Node)
       - "traefik.http.services.ecoguardian.loadbalancer.server.port=80"
+
+      # --- MIDDLEWARE AUTH (Authelia) ---
+      - "traefik.http.routers.ecoguardian-secure.middlewares=authelia"
+      - "traefik.http.routers.ecoguardian-local.middlewares=authelia"
+
+      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://ecoguardian.duckdns.org/authelia/"
+      - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
+
+  # --- AUTHELIA ---
+  authelia:
+    image: authelia/authelia:latest
+    container_name: iot_authelia
+    restart: always
+    volumes:
+      - ./authelia/configuration.yml:/config/configuration.yml
+      - ./authelia/users_database.yml:/config/users_database.yml
+      - ./authelia/assets:/config/assets
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`ecoguardian.duckdns.org`) && PathPrefix(`/authelia`)"
+      - "traefik.http.routers.authelia.entrypoints=websecure"
+      - "traefik.http.routers.authelia.tls.certresolver=myresolver"
+      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
+
+  # --- GRAFANA ---
+  grafana:
+    image: grafana/grafana:latest
+    container_name: iot_grafana
+    restart: always
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+    environment:
+      - GF_SERVER_ROOT_URL=https://ecoguardian.duckdns.org/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`ecoguardian.duckdns.org`) && PathPrefix(`/grafana`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"

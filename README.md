@@ -116,6 +116,48 @@ L'application web offre une vue synthétique et esthétique.
 
 ---
 
+## 🔐 Sécurité Avancée : Authentification & SSO (Authelia)
+
+Pour sécuriser l'accès aux services critiques (Grafana, EcoGuardian Admin, etc.), nous utilisons **Authelia** en tant que fournisseur d'identité (IdP). Il agit comme un middleware de sécurité devant Traefik ("Forward Auth").
+
+### Architecture & Fonctionnement
+1.  **Interception** : Traefik intercepte la requête vers un service protégé (ex: `https://ecoguardian.duckdns.org`).
+2.  **Vérification** : Il délègue la vérification à Authelia.
+3.  **Décision** :
+    *   Si l'utilisateur n'est pas connecté -> Redirection vers le portail de connexion Authelia.
+    *   Si connecté mais droits insuffisants -> Demande de MFA (Double Facteur).
+    *   Si autorisé -> La requête est transmise au service final.
+
+### Fonctionnalités Implémentées
+
+#### 1. Authentification Double Facteur (2FA/MFA)
+Pour garantir une sécurité maximale, l'accès au réseau externe est protégé par une **authentification à deux facteurs**.
+- **Facteur 1** : Mot de passe fort (Haché en Argon2id).
+- **Facteur 2** : Code unique temporaire (TOTP) généré par une application mobile (Google Authenticator, Authy...).
+- **Politique** : Accès "two_factor" forcé pour tous les sous-domaines.
+
+#### 2. Gestion des Utilisateurs (File-Based)
+Les utilisateurs sont définis dans un fichier sécurisé (`users_database.yml`) monté dans le conteneur.
+- Pas de base de données externe requise.
+- Hachage des mots de passe via `docker run authelia/authelia authelia crypto hash generate argon2`.
+
+#### 3. Interface Personnalisée
+L'interface de connexion a été adaptée pour refléter l'identité "EcoGuardian".
+- **Logo** : Intégration du logo du projet (`logo_web.png`) via un montage de volume (`/config/assets`).
+- **Thème** : Light mode par défaut.
+
+### Guide de Connexion (Premier accès)
+Puisque nous n'avons pas de serveur mail configuré (SMTP), l'enrôlement MFA se fait manuellement via les logs du conteneur.
+1.  Se connecter avec les identifiants initiaux.
+2.  Lors de la demande d'enregistrement 2FA, cliquer sur "Register".
+3.  Récupérer le lien d'activation :
+    ```bash
+    docker exec iot_authelia cat /config/notification.txt
+    ```
+4.  Scanner le QR Code avec votre téléphone.
+
+---
+
 ## 🛠️ Installation & Déploiement (Branche Infra/Deploy)
 
 Cette branche **« Cloud Simulation »** a pour objectif de déporter les services lourds (Base de données, Interface Web) hors des microcontrôleurs.
@@ -130,5 +172,18 @@ Elle contient la configuration complète pour déployer cette infrastructure sur
 - Docker & Docker Compose
 - Ports 80, 443 et 8086 ouverts sur le routeur
 - Un nom de domaine (ex: DuckDNS)
+
+### Services Déployés
+Une fois le `docker-compose up -d` lancé, voici les accès :
+
+| Service | Accès (URL/Port) | Authentification |
+| :--- | :--- | :--- |
+| **EcoGuardian App** | `https://ecoguardian.duckdns.org` | Authelia (2FA) |
+| **Grafana** | `https://ecoguardian.duckdns.org/grafana` | Aucune (Interne) |
+| **InfluxDB** | `https://ecoguardian.duckdns.org:8086` | Token / Login de base |
+| **Authelia** (IdP) | `https://ecoguardian.duckdns.org/authelia` | - |
+| **Traefik** (Proxy) | Port 80 / 443 | - |
+
+---
 
 

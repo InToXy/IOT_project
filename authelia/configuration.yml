@@ -1,0 +1,57 @@
+---
+###############################################################
+#                   Authelia Configuration                    #
+###############################################################
+
+theme: light
+
+server:
+  host: 0.0.0.0
+  port: 9091
+  # Helper for running behind a proxy (Traefik)
+  path: /authelia/
+  asset_path: /config/assets
+
+log:
+  level: debug
+
+totp:
+  issuer: ecoguardian.duckdns.org
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "ecoguardian.duckdns.org"
+      policy: two_factor
+
+session:
+  name: authelia_session
+  secret: "ae96f589d184e51a9b7b769a98c329a4ae8f45dae0b9ee7308028ca3308bc848"
+  expiration: 3600 # 1 hour
+  inactivity: 300 # 5 minutes
+  cookies:
+    - domain: "ecoguardian.duckdns.org"
+      authelia_url: "https://ecoguardian.duckdns.org/authelia"
+      default_redirection_url: "https://ecoguardian.duckdns.org"
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+storage:
+  local:
+    path: /config/db.sqlite3
+  encryption_key: "3e4e0025de39910056bc2dd601d847c051ddd71ff63eca35047de0cefd38a952"
+
+notifier:
+  filesystem:
+    filename: /config/notification.txt
+
+identity_validation:
+  reset_password:
+    jwt_secret: "2f5c13b521c8aaf34a62f5ac6c9a3b0b63149104fec1febdab8800729efd2095"

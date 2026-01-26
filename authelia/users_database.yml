@@ -1,0 +1,7 @@
+users:
+  admin:
+    displayname: "Admin User"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$OapCgHzb0F5MP8jKBcRE9Q$KP+j/a831jn2Er0j8cJm+N6ueOhoSdBygc6Co+qvaUI"
+    email: matheo.pinget@gmail.com
+    groups:
+      - admins
