@@ -1,6 +1,9 @@
-# EcoGuardian - Un Campus qui vous comprend
+# EcoGuardian - Un Campus qui vous comprend ( coté plantation )
 
 ![Logo ou Bannière](images/logo.png)
+
+> [!INFO]
+> **Partie Plantation (Edge)** : Ce dossier concerne l'infrastructure déployée **au plus près des plantes**. Elle gère la logique locale (via **Node-RED**) et le transport des données (via **Mosquitto**) pour assurer une remontée sécurisée vers la partie Cloud.
 
 ## 📌 Contexte du Projet
 **Projet :** « Un campus qui vous comprend »  

@@ -31,7 +31,7 @@
         "usetls": false,
         "tls": "",
         "influxdbVersion": "2.0",
-        "url": "http://influxdb:8086",
+        "url": "https://ecoguardian.duckdns.org:8086",
         "timeout": "",
         "rejectUnauthorized": false
     },

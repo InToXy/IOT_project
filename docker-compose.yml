@@ -22,6 +22,7 @@ services:
     restart: always
     environment:
       - TZ=Europe/Paris
+      - NODE_OPTIONS=--dns-result-order=ipv4first
     ports:
       - "1880:1880"
     volumes:
@@ -29,43 +30,3 @@ services:
       - ./mosquitto/config/certs:/data/certs:ro
     depends_on:
       - mosquitto
-      - influxdb
-
-  # --- BASE DE DONNÉES (La Mémoire) ---
-  influxdb:
-    image: influxdb:2.7
-    container_name: iot_influxdb
-    restart: always
-    ports:
-      - "8086:8086"
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword # Change-le !
-      - DOCKER_INFLUXDB_INIT_ORG=maison
-      - DOCKER_INFLUXDB_INIT_BUCKET=plante_data
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=hRdqsdya7L2N5_Q4_AAjGodXxrjrvvMk4r_zyjKg92ZZS8S6Vmi792KXpAGxNYiVLfiQ9AADsaoEnUkdRYCXIQ==
-    volumes:
-      - ./influxdb/data:/var/lib/influxdb2
-
-  # --- TABLEAU DE BORD (Le Visage) ---
-  grafana:
-    image: grafana/grafana-enterprise
-    container_name: iot_grafana
-    restart: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./grafana/data:/var/lib/grafana
-    depends_on:
-      - influxdb
-
-  # --- WEB APP (EcoGuardian) ---
-  ecoguardian:
-    build: ./ecoguardian-plant-monitor
-    container_name: iot_ecoguardian
-    restart: always
-    ports:
-      - "8080:80"
-    depends_on:
-      - influxdb
