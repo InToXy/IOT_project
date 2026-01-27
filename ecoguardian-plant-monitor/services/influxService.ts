@@ -40,14 +40,23 @@ export const generateMockData = (count: number = 20): PlantData[] => {
   return data;
 };
 
-export const fetchPlantDataFromInflux = async (config: InfluxConfig): Promise<PlantData[]> => {
+export const fetchPlantDataFromInflux = async (config: InfluxConfig, plantId?: string, greenhouseId?: string): Promise<PlantData[]> => {
   const influxDB = new InfluxDB({ url: config.url, token: config.token });
   const queryApi = influxDB.getQueryApi(config.org);
+
+  // Construction dynamique du filtre
+  let filterString = `|> filter(fn: (r) => r["_measurement"] == "monitor_plante")`;
+  if (plantId) {
+    filterString += ` |> filter(fn: (r) => r["id_plante"] == "${plantId}")`;
+  }
+  if (greenhouseId) {
+    filterString += ` |> filter(fn: (r) => r["id_serre"] == "${greenhouseId}")`;
+  }
 
   const fluxQuery = `
     from(bucket: "${config.bucket}")
       |> range(start: -24h)
-      |> filter(fn: (r) => r["_measurement"] == "monitor_plante")
+      ${filterString}
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
       |> sort(columns: ["_time"])
   `;
@@ -77,7 +86,11 @@ export const fetchPlantDataFromInflux = async (config: InfluxConfig): Promise<Pl
           humidite_sol: parseFloat(soilPercent.toFixed(1)),
           humidite_sol_raw: Math.round(rawSoil),
           luminosite: Math.round(lightPercent),
-          luminosite_raw: Math.round(rawLight)
+          luminosite_raw: Math.round(rawLight),
+          id_plante: o.id_plante,
+          id_serre: o.id_serre,
+          location: o.location,
+          rssi: o.rssi != null ? Number(o.rssi) : undefined
         });
       },
       error(error) {

@@ -15,6 +15,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlant, setSelectedPlant] = useState<PlantProfile>(PLANT_PROFILES[0]);
+  const [manualPlantId, setManualPlantId] = useState<string>(PLANT_PROFILES[0].influxId);
+  const [selectedGreenhouseId, setSelectedGreenhouseId] = useState<string>("");
   const [lastAlertTime, setLastAlertTime] = useState<number>(0);
 
   // State for Modal
@@ -30,7 +32,7 @@ function App() {
   const loadData = async () => {
     try {
       setError(null);
-      const results = await fetchPlantDataFromInflux(DEFAULT_CONFIG);
+      const results = await fetchPlantDataFromInflux(DEFAULT_CONFIG, manualPlantId, selectedGreenhouseId);
       // Removed "No data found" error throw to allow empty state if just no data yet
       setData(results);
     } catch (err: any) {
@@ -45,7 +47,12 @@ function App() {
     loadData();
     const interval = setInterval(loadData, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [manualPlantId, selectedGreenhouseId]);
+
+  // Sync manual ID when preset changes
+  useEffect(() => {
+    setManualPlantId(selectedPlant.influxId);
+  }, [selectedPlant]);
 
   const current = data.length > 0 ? data[data.length - 1] : {
     temperature: 0, humidite: 0, humidite_sol: 0, luminosite: 0
@@ -96,6 +103,10 @@ function App() {
     }
   }, [wellnessScore, selectedPlant, lastAlertTime, data, current]);
 
+  // Filtrer les données pour la dernière heure
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const recentData = data.filter(d => new Date(d.originalDate) > oneHourAgo);
+
   return (
     <div className="min-h-screen pb-12 bg-[#f0fdf4]">
       {/* Header avec Gradient et Plante Virtuelle */}
@@ -114,10 +125,11 @@ function App() {
               Tableau de bord intelligent pour vos plantes
             </p>
 
-            {/* Plant Selector & Wellness Score */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            {/* Plant & Greenhouse Selector & Wellness Score */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
+              {/* Plant Selector */}
               <div className="inline-flex items-center bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20">
-                <span className="text-white text-sm font-medium mr-2 px-2">Plante surveillée :</span>
+                <span className="text-white text-sm font-medium mr-2 px-2">🌱 Plante :</span>
                 <select
                   value={selectedPlant.id}
                   onChange={(e) => {
@@ -136,6 +148,48 @@ function App() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Plant ID Manual Input */}
+              <div className="inline-flex items-center bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20">
+                <span className="text-white text-sm font-medium mr-2 px-2">ID Capteur :</span>
+                <input
+                  type="text"
+                  value={manualPlantId}
+                  onChange={(e) => setManualPlantId(e.target.value)}
+                  className="bg-white/20 text-white border-none rounded-md px-3 py-1 focus:ring-2 focus:ring-white/50 w-24 placeholder-white/50"
+                  style={{ color: 'white', backgroundColor: 'transparent' }}
+                  placeholder="ID"
+                />
+              </div>
+
+              {/* Greenhouse Selector */}
+              <div className="inline-flex items-center bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20">
+                <span className="text-white text-sm font-medium mr-2 px-2">🏠 Serre :</span>
+                <input
+                  type="text"
+                  value={selectedGreenhouseId}
+                  onChange={(e) => setSelectedGreenhouseId(e.target.value)}
+                  className="bg-white/20 text-white border-none rounded-md px-3 py-1 focus:ring-2 focus:ring-white/50 w-24 placeholder-white/50"
+                  style={{ color: 'white', backgroundColor: 'transparent' }}
+                  placeholder="ID"
+                />
+              </div>
+
+              {/* Last Update Indicator */}
+              <div className={`hidden md:inline-flex items-center px-3 py-2 rounded-lg backdrop-blur-md border border-white/20 text-white font-medium text-sm
+                ${(data.length > 0 && (Date.now() - new Date(data[data.length - 1].originalDate).getTime()) / 60000 < 5) ? 'bg-emerald-500/50' : 'bg-rose-500/50'}`}>
+                <span className="mr-2">🕒</span>
+                {data.length > 0 ? (
+                  <span>
+                    Dernière maj: {new Date(data[data.length - 1].originalDate).toLocaleTimeString()}
+                    <span className="text-xs opacity-75 ml-1">
+                      ({Math.floor((Date.now() - new Date(data[data.length - 1].originalDate).getTime()) / 60000)} min)
+                    </span>
+                  </span>
+                ) : (
+                  <span>En attente de données...</span>
+                )}
               </div>
 
               {/* Wellness Score Badge */}
@@ -267,8 +321,10 @@ function App() {
               <span className="flex items-center text-xs font-medium text-rose-500"><span className="w-2 h-2 rounded-full bg-rose-500 mr-1"></span> Temp</span>
               <span className="flex items-center text-xs font-medium text-sky-500"><span className="w-2 h-2 rounded-full bg-sky-500 mr-1"></span> Air</span>
               <span className="flex items-center text-xs font-medium text-emerald-500"><span className="w-2 h-2 rounded-full bg-emerald-500 mr-1"></span> Sol</span>
+              <span className="flex items-center text-xs font-medium text-amber-500"><span className="w-2 h-2 rounded-full bg-amber-500 mr-1"></span> Lum</span>
             </div>
           </div>
+
 
           <div className="h-[300px] w-full">
             {loading ? (
@@ -277,7 +333,10 @@ function App() {
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart
+                  data={recentData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="time" tick={{ fill: '#94a3b8', fontSize: 12 }} tickLine={false} axisLine={false} minTickGap={30} />
                   <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} tickLine={false} axisLine={false} />
@@ -285,6 +344,7 @@ function App() {
                   <Area type="monotone" dataKey="temperature" stroke="#e74c3c" strokeWidth={2} fill="none" />
                   <Area type="monotone" dataKey="humidite" stroke="#3498db" strokeWidth={2} fill="none" />
                   <Area type="monotone" dataKey="humidite_sol" stroke="#10b981" strokeWidth={2} fill="url(#colorSol)" fillOpacity={0.2} />
+                  <Area type="monotone" dataKey="luminosite" stroke="#f59e0b" strokeWidth={2} fill="none" />
                   <defs>
                     <linearGradient id="colorSol" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
@@ -310,7 +370,7 @@ function App() {
             unit={selectedMetric.unit}
             min={selectedMetric.min}
             max={selectedMetric.max}
-            data={data}
+            data={recentData}
           />
         )
       }

@@ -7,6 +7,10 @@ export interface PlantData {
   humidite_sol_raw?: number;
   luminosite: number;
   luminosite_raw?: number;
+  id_plante?: string;
+  id_serre?: string;
+  location?: string;
+  rssi?: number;
 }
 
 export enum HealthStatus {
@@ -31,6 +35,7 @@ export interface Range {
 
 export interface PlantProfile {
   id: string;
+  influxId: string; // ID used in InfluxDB (e.g. "3")
   name: string;
   description: string;
   needs: {
