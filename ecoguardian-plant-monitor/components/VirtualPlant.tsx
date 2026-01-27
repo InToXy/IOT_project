@@ -11,26 +11,26 @@ export const VirtualPlant: React.FC<VirtualPlantProps> = ({ wellnessScore }) => 
   let wiltFactor = 0;
   let faceExpression = "happy"; // happy, neutral, sad, ecstatic
 
-  if (wellnessScore >= 100) {
-    // 100%: Ecstatic / Parfait
+  if (wellnessScore >= 90) { // Changed to 90 to match new logic
+    // 90%: Ecstatic / Parfait
     leafColor = "#22c55e"; // Super vert (Emerald-500)
     leafDarkColor = "#15803d";
     wiltFactor = -5; // Un peu relevé (fier)
     faceExpression = "ecstatic";
-  } else if (wellnessScore >= 75) {
-    // 75%: Content
+  } else if (wellnessScore >= 60) { // Changed to 60 to match new logic
+    // 60%: Content
     leafColor = "#4ADE80"; // Vert normal
     leafDarkColor = "#16A34A";
     wiltFactor = 0;
     faceExpression = "happy";
-  } else if (wellnessScore >= 50) {
-    // 50%: Moyen
+  } else if (wellnessScore >= 30) { // Changed to 30
+    // 30%: Moyen
     leafColor = "#FACC15"; // Jaune
     leafDarkColor = "#A16207";
     wiltFactor = 10;
     faceExpression = "neutral";
   } else {
-    // 25% ou moins: Mauvais
+    // 30% ou moins: Mauvais
     leafColor = "#EF4444"; // Rouge/Marron
     leafDarkColor = "#991B1B";
     wiltFactor = 25; // Très affaissé

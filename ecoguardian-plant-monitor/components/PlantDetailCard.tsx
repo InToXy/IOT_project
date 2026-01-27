@@ -12,9 +12,18 @@ export const PlantDetailCard: React.FC<PlantDetailCardProps> = ({ plant }) => {
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
 
                 <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2 mb-2">
-                        🌱 {plant.name}
-                    </h2>
+                    <div className="flex items-center gap-4 mb-2">
+                        {plant.imagePath && (
+                            <img
+                                src={plant.imagePath}
+                                alt={plant.name}
+                                className="w-16 h-16 object-contain drop-shadow-md bg-white rounded-full p-1 border border-emerald-100"
+                            />
+                        )}
+                        <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                            {plant.name}
+                        </h2>
+                    </div>
                     <p className="text-slate-600 leading-relaxed italic border-l-4 border-emerald-400 pl-4 py-1 bg-emerald-50/50 rounded-r-lg">
                         {plant.description}
                     </p>

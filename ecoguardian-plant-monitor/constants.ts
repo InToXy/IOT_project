@@ -11,7 +11,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 40, max: 70 },
             humidite_sol: { min: 20, max: 60 },
             luminosite: { min: 30, max: 70 }
-        }
+        },
+        imagePath: '/plants/monstera.png'
     },
     {
         id: 'cactus',
@@ -23,7 +24,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 10, max: 40 },
             humidite_sol: { min: 0, max: 30 },
             luminosite: { min: 60, max: 100 }
-        }
+        },
+        imagePath: '/plants/cactus.png'
     },
     {
         id: 'calathea',
@@ -35,7 +37,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 60, max: 80 },
             humidite_sol: { min: 40, max: 70 },
             luminosite: { min: 15, max: 50 }
-        }
+        },
+        imagePath: '/plants/monstera.png'
     },
     {
         id: 'basilic',
@@ -47,7 +50,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 40, max: 60 },
             humidite_sol: { min: 40, max: 80 },
             luminosite: { min: 50, max: 90 }
-        }
+        },
+        imagePath: '/plants/herb.png'
     },
     {
         id: 'aloe_vera',
@@ -59,7 +63,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 30, max: 50 },
             humidite_sol: { min: 10, max: 30 },
             luminosite: { min: 60, max: 100 }
-        }
+        },
+        imagePath: '/plants/cactus.png'
     },
     {
         id: 'ficus',
@@ -71,7 +76,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 40, max: 60 },
             humidite_sol: { min: 30, max: 60 },
             luminosite: { min: 40, max: 80 }
-        }
+        },
+        imagePath: '/plants/monstera.png'
     },
     {
         id: 'orchidee',
@@ -83,7 +89,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 50, max: 70 },
             humidite_sol: { min: 40, max: 60 },
             luminosite: { min: 30, max: 60 }
-        }
+        },
+        imagePath: '/plants/flower.png'
     },
     {
         id: 'pothos',
@@ -95,7 +102,8 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 40, max: 80 },
             humidite_sol: { min: 20, max: 60 },
             luminosite: { min: 10, max: 60 }
-        }
+        },
+        imagePath: '/plants/monstera.png'
     },
     {
         id: 'menthe',
@@ -107,6 +115,7 @@ export const PLANT_PROFILES: PlantProfile[] = [
             humidite: { min: 50, max: 80 },
             humidite_sol: { min: 60, max: 90 },
             luminosite: { min: 50, max: 100 }
-        }
+        },
+        imagePath: '/plants/herb.png'
     }
 ];

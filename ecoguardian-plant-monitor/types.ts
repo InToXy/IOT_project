@@ -44,4 +44,5 @@ export interface PlantProfile {
     humidite_sol: Range;
     luminosite: Range;
   }
+  imagePath: string;
 }
