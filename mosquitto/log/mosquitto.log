@@ -5884,3 +5884,397 @@
 1769500497: Opening ipv4 listen socket on port 8883.
 1769500497: Opening ipv6 listen socket on port 8883.
 1769500497: mosquitto version 2.0.22 running
+1769504682: mosquitto version 2.0.22 starting
+1769504682: Config loaded from /mosquitto/config/mosquitto.conf.
+1769504682: Opening ipv4 listen socket on port 1883.
+1769504682: Opening ipv6 listen socket on port 1883.
+1769504682: Opening websockets listen socket on port 9001.
+1769504682: Opening ipv4 listen socket on port 8883.
+1769504682: Opening ipv6 listen socket on port 8883.
+1769504682: mosquitto version 2.0.22 running
+1769504686: New connection from 192.168.107.1:52164 on port 8883.
+1769504686: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504686: Client <unknown> disconnected: Protocol error.
+1769504691: New connection from 192.168.107.1:50932 on port 8883.
+1769504691: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504691: Client <unknown> disconnected: Protocol error.
+1769504696: New connection from 192.168.107.1:38839 on port 8883.
+1769504696: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504696: Client <unknown> disconnected: Protocol error.
+1769504701: New connection from 192.168.107.1:41076 on port 8883.
+1769504701: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504701: Client <unknown> disconnected: Protocol error.
+1769504706: New connection from 192.168.107.1:37132 on port 8883.
+1769504706: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504706: Client <unknown> disconnected: Protocol error.
+1769504711: New connection from 192.168.107.1:64723 on port 8883.
+1769504711: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504711: Client <unknown> disconnected: Protocol error.
+1769504716: New connection from 192.168.107.1:29928 on port 8883.
+1769504716: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504716: Client <unknown> disconnected: Protocol error.
+1769504722: New connection from 192.168.107.1:54515 on port 8883.
+1769504722: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504722: Client <unknown> disconnected: Protocol error.
+1769504726: New connection from 192.168.107.1:22000 on port 8883.
+1769504726: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504726: Client <unknown> disconnected: Protocol error.
+1769504731: New connection from 192.168.107.1:36416 on port 8883.
+1769504732: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504732: Client <unknown> disconnected: Protocol error.
+1769504736: New connection from 192.168.107.1:26539 on port 8883.
+1769504736: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504736: Client <unknown> disconnected: Protocol error.
+1769504741: New connection from 192.168.107.1:60583 on port 8883.
+1769504741: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504741: Client <unknown> disconnected: Protocol error.
+1769504746: New connection from 192.168.107.1:51249 on port 8883.
+1769504746: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504746: Client <unknown> disconnected: Protocol error.
+1769504751: New connection from 192.168.107.1:34096 on port 8883.
+1769504751: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504751: Client <unknown> disconnected: Protocol error.
+1769504756: New connection from 192.168.107.1:40015 on port 8883.
+1769504756: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504756: Client <unknown> disconnected: Protocol error.
+1769504761: New connection from 192.168.107.1:28909 on port 8883.
+1769504762: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504762: Client <unknown> disconnected: Protocol error.
+1769504767: New connection from 192.168.107.1:48406 on port 8883.
+1769504767: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504767: Client <unknown> disconnected: Protocol error.
+1769504771: New connection from 192.168.107.1:42564 on port 8883.
+1769504772: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504772: Client <unknown> disconnected: Protocol error.
+1769504776: New connection from 192.168.107.1:57265 on port 8883.
+1769504777: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504777: Client <unknown> disconnected: Protocol error.
+1769504781: New connection from 192.168.107.1:50462 on port 8883.
+1769504781: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504781: Client <unknown> disconnected: Protocol error.
+1769504786: New connection from 192.168.107.1:44023 on port 8883.
+1769504786: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504786: Client <unknown> disconnected: Protocol error.
+1769504791: New connection from 192.168.107.1:62794 on port 8883.
+1769504792: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504792: Client <unknown> disconnected: Protocol error.
+1769504796: New connection from 192.168.107.1:55369 on port 8883.
+1769504796: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504796: Client <unknown> disconnected: Protocol error.
+1769504801: New connection from 192.168.107.1:21911 on port 8883.
+1769504802: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504802: Client <unknown> disconnected: Protocol error.
+1769504807: New connection from 192.168.107.1:64095 on port 8883.
+1769504807: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504807: Client <unknown> disconnected: Protocol error.
+1769504812: New connection from 192.168.107.1:41407 on port 8883.
+1769504812: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504812: Client <unknown> disconnected: Protocol error.
+1769504816: New connection from 192.168.107.1:38781 on port 8883.
+1769504816: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504816: Client <unknown> disconnected: Protocol error.
+1769504821: New connection from 192.168.107.1:51327 on port 8883.
+1769504822: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504822: Client <unknown> disconnected: Protocol error.
+1769504826: New connection from 192.168.107.1:56512 on port 8883.
+1769504826: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504826: Client <unknown> disconnected: Protocol error.
+1769504831: New connection from 192.168.107.1:32376 on port 8883.
+1769504832: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504832: Client <unknown> disconnected: Protocol error.
+1769504837: New connection from 192.168.107.1:25580 on port 8883.
+1769504837: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504837: Client <unknown> disconnected: Protocol error.
+1769504842: New connection from 192.168.107.1:25191 on port 8883.
+1769504842: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504842: Client <unknown> disconnected: Protocol error.
+1769504846: New connection from 192.168.107.1:31682 on port 8883.
+1769504846: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504846: Client <unknown> disconnected: Protocol error.
+1769504851: New connection from 192.168.107.1:42703 on port 8883.
+1769504851: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504851: Client <unknown> disconnected: Protocol error.
+1769504856: New connection from 192.168.107.1:38583 on port 8883.
+1769504856: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504856: Client <unknown> disconnected: Protocol error.
+1769504861: New connection from 192.168.107.1:46924 on port 8883.
+1769504862: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504862: Client <unknown> disconnected: Protocol error.
+1769504867: New connection from 192.168.107.1:43586 on port 8883.
+1769504867: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504867: Client <unknown> disconnected: Protocol error.
+1769504871: New connection from 192.168.107.1:21991 on port 8883.
+1769504871: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504871: Client <unknown> disconnected: Protocol error.
+1769504876: New connection from 192.168.107.1:18959 on port 8883.
+1769504876: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504876: Client <unknown> disconnected: Protocol error.
+1769504881: New connection from 192.168.107.1:64194 on port 8883.
+1769504881: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504881: Client <unknown> disconnected: Protocol error.
+1769504887: New connection from 192.168.107.1:59065 on port 8883.
+1769504887: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504887: Client <unknown> disconnected: Protocol error.
+1769504892: New connection from 192.168.107.1:44964 on port 8883.
+1769504892: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504892: Client <unknown> disconnected: Protocol error.
+1769504897: New connection from 192.168.107.1:60724 on port 8883.
+1769504897: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504897: Client <unknown> disconnected: Protocol error.
+1769504902: New connection from 192.168.107.1:46772 on port 8883.
+1769504902: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504902: Client <unknown> disconnected: Protocol error.
+1769504907: New connection from 192.168.107.1:44940 on port 8883.
+1769504907: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504907: Client <unknown> disconnected: Protocol error.
+1769504912: New connection from 192.168.107.1:60379 on port 8883.
+1769504912: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504912: Client <unknown> disconnected: Protocol error.
+1769504917: New connection from 192.168.107.1:22031 on port 8883.
+1769504917: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504917: Client <unknown> disconnected: Protocol error.
+1769504922: New connection from 192.168.107.1:18329 on port 8883.
+1769504922: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504922: Client <unknown> disconnected: Protocol error.
+1769504927: New connection from 192.168.107.1:56586 on port 8883.
+1769504927: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504927: Client <unknown> disconnected: Protocol error.
+1769504932: New connection from 192.168.107.1:16774 on port 8883.
+1769504932: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504932: Client <unknown> disconnected: Protocol error.
+1769504937: New connection from 192.168.107.1:36780 on port 8883.
+1769504937: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504937: Client <unknown> disconnected: Protocol error.
+1769504942: New connection from 192.168.107.1:44205 on port 8883.
+1769504942: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504942: Client <unknown> disconnected: Protocol error.
+1769504947: New connection from 192.168.107.1:57440 on port 8883.
+1769504947: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504947: Client <unknown> disconnected: Protocol error.
+1769504952: New connection from 192.168.107.1:20125 on port 8883.
+1769504952: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504952: Client <unknown> disconnected: Protocol error.
+1769504957: New connection from 192.168.107.1:23640 on port 8883.
+1769504957: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504957: Client <unknown> disconnected: Protocol error.
+1769504962: New connection from 192.168.107.1:61957 on port 8883.
+1769504962: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504962: Client <unknown> disconnected: Protocol error.
+1769504967: New connection from 192.168.107.1:41279 on port 8883.
+1769504967: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504967: Client <unknown> disconnected: Protocol error.
+1769504972: New connection from 192.168.107.1:54947 on port 8883.
+1769504972: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504972: Client <unknown> disconnected: Protocol error.
+1769504977: New connection from 192.168.107.1:63717 on port 8883.
+1769504977: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504977: Client <unknown> disconnected: Protocol error.
+1769504982: New connection from 192.168.107.1:64729 on port 8883.
+1769504982: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504982: Client <unknown> disconnected: Protocol error.
+1769504987: New connection from 192.168.107.1:50843 on port 8883.
+1769504987: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504987: Client <unknown> disconnected: Protocol error.
+1769504992: New connection from 192.168.107.1:52358 on port 8883.
+1769504992: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504992: Client <unknown> disconnected: Protocol error.
+1769504997: New connection from 192.168.107.1:64972 on port 8883.
+1769504997: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769504997: Client <unknown> disconnected: Protocol error.
+1769505000: New connection from 192.168.107.1:48236 on port 8883.
+1769505000: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505000: Client <unknown> disconnected: Protocol error.
+1769505002: New connection from 192.168.107.1:62207 on port 8883.
+1769505002: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505002: Client <unknown> disconnected: Protocol error.
+1769505007: New connection from 192.168.107.1:41366 on port 8883.
+1769505007: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505007: Client <unknown> disconnected: Protocol error.
+1769505012: New connection from 192.168.107.1:33945 on port 8883.
+1769505012: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505012: Client <unknown> disconnected: Protocol error.
+1769505015: New connection from 192.168.107.1:21364 on port 8883.
+1769505015: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505015: Client <unknown> disconnected: Protocol error.
+1769505017: New connection from 192.168.107.1:62782 on port 8883.
+1769505017: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505017: Client <unknown> disconnected: Protocol error.
+1769505022: New connection from 192.168.107.1:35000 on port 8883.
+1769505022: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505022: Client <unknown> disconnected: Protocol error.
+1769505027: New connection from 192.168.107.1:30401 on port 8883.
+1769505027: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505027: Client <unknown> disconnected: Protocol error.
+1769505030: New connection from 192.168.107.1:37076 on port 8883.
+1769505030: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505030: Client <unknown> disconnected: Protocol error.
+1769505032: New connection from 192.168.107.1:22979 on port 8883.
+1769505032: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505032: Client <unknown> disconnected: Protocol error.
+1769505037: New connection from 192.168.107.1:62282 on port 8883.
+1769505037: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505037: Client <unknown> disconnected: Protocol error.
+1769505042: New connection from 192.168.107.1:29507 on port 8883.
+1769505042: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505042: Client <unknown> disconnected: Protocol error.
+1769505045: New connection from 192.168.107.1:51174 on port 8883.
+1769505045: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505045: Client <unknown> disconnected: Protocol error.
+1769505047: New connection from 192.168.107.1:38628 on port 8883.
+1769505047: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505047: Client <unknown> disconnected: Protocol error.
+1769505052: New connection from 192.168.107.1:32200 on port 8883.
+1769505053: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505053: Client <unknown> disconnected: Protocol error.
+1769505057: New connection from 192.168.107.1:19068 on port 8883.
+1769505057: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505057: Client <unknown> disconnected: Protocol error.
+1769505060: New connection from 192.168.107.1:64162 on port 8883.
+1769505060: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505060: Client <unknown> disconnected: Protocol error.
+1769505062: New connection from 192.168.107.1:53287 on port 8883.
+1769505062: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505062: Client <unknown> disconnected: Protocol error.
+1769505067: New connection from 192.168.107.1:26848 on port 8883.
+1769505067: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505067: Client <unknown> disconnected: Protocol error.
+1769505072: New connection from 192.168.107.1:22196 on port 8883.
+1769505072: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505072: Client <unknown> disconnected: Protocol error.
+1769505075: New connection from 192.168.107.1:40184 on port 8883.
+1769505075: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505075: Client <unknown> disconnected: Protocol error.
+1769505077: New connection from 192.168.107.1:36884 on port 8883.
+1769505078: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505078: Client <unknown> disconnected: Protocol error.
+1769505082: New connection from 192.168.107.1:56767 on port 8883.
+1769505082: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505082: Client <unknown> disconnected: Protocol error.
+1769505087: New connection from 192.168.107.1:51415 on port 8883.
+1769505087: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505087: Client <unknown> disconnected: Protocol error.
+1769505090: New connection from 192.168.107.1:56616 on port 8883.
+1769505090: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505090: Client <unknown> disconnected: Protocol error.
+1769505092: New connection from 192.168.107.1:54380 on port 8883.
+1769505093: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505093: Client <unknown> disconnected: Protocol error.
+1769505098: New connection from 192.168.107.1:57940 on port 8883.
+1769505098: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505098: Client <unknown> disconnected: Protocol error.
+1769505102: New connection from 192.168.107.1:60763 on port 8883.
+1769505102: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505102: Client <unknown> disconnected: Protocol error.
+1769505105: New connection from 192.168.107.1:55977 on port 8883.
+1769505105: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505105: Client <unknown> disconnected: Protocol error.
+1769505107: New connection from 192.168.107.1:46192 on port 8883.
+1769505107: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505107: Client <unknown> disconnected: Protocol error.
+1769505113: New connection from 192.168.107.1:54991 on port 8883.
+1769505113: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505113: Client <unknown> disconnected: Protocol error.
+1769505117: New connection from 192.168.107.1:47031 on port 8883.
+1769505117: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505117: Client <unknown> disconnected: Protocol error.
+1769505120: New connection from 192.168.107.1:31453 on port 8883.
+1769505120: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505120: Client <unknown> disconnected: Protocol error.
+1769505122: New connection from 192.168.107.1:17070 on port 8883.
+1769505122: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505122: Client <unknown> disconnected: Protocol error.
+1769505127: New connection from 192.168.107.1:35352 on port 8883.
+1769505127: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505127: Client <unknown> disconnected: Protocol error.
+1769505133: New connection from 192.168.107.1:26289 on port 8883.
+1769505133: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505133: Client <unknown> disconnected: Protocol error.
+1769505135: New connection from 192.168.107.1:46356 on port 8883.
+1769505135: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505135: Client <unknown> disconnected: Protocol error.
+1769505137: New connection from 192.168.107.1:27914 on port 8883.
+1769505137: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505137: Client <unknown> disconnected: Protocol error.
+1769505142: New connection from 192.168.107.1:27674 on port 8883.
+1769505143: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505143: Client <unknown> disconnected: Protocol error.
+1769505147: New connection from 192.168.107.1:61761 on port 8883.
+1769505147: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505147: Client <unknown> disconnected: Protocol error.
+1769505150: New connection from 192.168.107.1:62084 on port 8883.
+1769505150: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769505150: Client <unknown> disconnected: Protocol error.
+1769505152: New connection from 192.168.107.1:20574 on port 8883.
+1769505152: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505152: Client <unknown> disconnected: Protocol error.
+1769505157: New connection from 192.168.107.1:62556 on port 8883.
+1769505157: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769505157: Client <unknown> disconnected: Protocol error.
+1769505290: New connection from 192.168.107.1:33834 on port 8883.
+1769505290: New client connected from 192.168.107.1:33834 as nodered49fcd7db43d389c0 (p2, c1, k60).
+1769506083: Client nodered49fcd7db43d389c0 disconnected.
+1769506083: New connection from 192.168.107.1:32127 on port 8883.
+1769506083: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506083: Client <unknown> disconnected: Protocol error.
+1769506099: New connection from 192.168.107.1:34691 on port 8883.
+1769506099: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506099: Client <unknown> disconnected: Protocol error.
+1769506114: New connection from 192.168.107.1:37571 on port 8883.
+1769506114: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506114: Client <unknown> disconnected: Protocol error.
+1769506129: New connection from 192.168.107.1:54301 on port 8883.
+1769506129: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506129: Client <unknown> disconnected: Protocol error.
+1769506145: New connection from 192.168.107.1:29122 on port 8883.
+1769506145: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506145: Client <unknown> disconnected: Protocol error.
+1769506160: New connection from 192.168.107.1:54493 on port 8883.
+1769506160: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506160: Client <unknown> disconnected: Protocol error.
+1769506175: New connection from 192.168.107.1:34076 on port 8883.
+1769506175: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506175: Client <unknown> disconnected: Protocol error.
+1769506191: New connection from 192.168.107.1:54074 on port 8883.
+1769506191: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506191: Client <unknown> disconnected: Protocol error.
+1769506204: New connection from 192.168.107.1:58799 on port 8883.
+1769506204: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769506204: Client <unknown> disconnected: Protocol error.
+1769506206: New connection from 192.168.107.1:35566 on port 8883.
+1769506206: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506206: Client <unknown> disconnected: Protocol error.
+1769506209: New connection from 192.168.107.1:40551 on port 8883.
+1769506209: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769506209: Client <unknown> disconnected: Protocol error.
+1769506217: New connection from 192.168.107.1:17269 on port 8883.
+1769506217: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769506217: Client <unknown> disconnected: Protocol error.
+1769506219: New connection from 192.168.107.1:53618 on port 8883.
+1769506219: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769506219: Client <unknown> disconnected: Protocol error.
+1769506221: New connection from 192.168.107.1:35302 on port 8883.
+1769506221: OpenSSL Error[0]: error:0A000126:SSL routines::unexpected eof while reading
+1769506221: Client <unknown> disconnected: Protocol error.
+1769506224: New connection from 192.168.107.1:22049 on port 8883.
+1769506224: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769506224: Client <unknown> disconnected: Protocol error.
+1769506229: New connection from 192.168.107.1:43530 on port 8883.
+1769506229: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1769506229: Client <unknown> disconnected: Protocol error.
+1769506231: mosquitto version 2.0.22 terminating
+1769506231: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769506231: mosquitto version 2.0.22 starting
+1769506231: Config loaded from /mosquitto/config/mosquitto.conf.
+1769506231: Opening ipv4 listen socket on port 1883.
+1769506231: Opening ipv6 listen socket on port 1883.
+1769506231: Opening websockets listen socket on port 9001.
+1769506231: Opening ipv4 listen socket on port 8883.
+1769506231: Opening ipv6 listen socket on port 8883.
+1769506231: mosquitto version 2.0.22 running
+1769506234: New connection from 192.168.107.1:42797 on port 8883.
+1769506235: New client connected from 192.168.107.1:42797 as ESP32_LoRa_Gateway (p2, c1, k60).
+1769506236: New connection from 192.168.107.1:48428 on port 8883.
+1769506236: New client connected from 192.168.107.1:48428 as noderedf2af3a545cfac126 (p2, c1, k60).
+1769506294: Client noderedf2af3a545cfac126 disconnected.
+1769506294: New connection from 192.168.107.3:34526 on port 8883.
+1769506294: New client connected from 192.168.107.3:34526 as noderedce9de7eb0aa5034d (p2, c1, k60).

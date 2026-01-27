@@ -9,7 +9,7 @@ const char *ssid = "vivo flo";
 const char *password = "fuckyoubitch";
 
 // ================== CONFIGURATION MQTT ==================
-const char *mqtt_server = "10.149.212.160";
+const char *mqtt_server = "MC-TV02XG93P9.local";
 const int mqtt_port = 8883;
 const char *mqtt_topic =
     "maison/plante/data/raw"; // Topic pour data brute (hex)

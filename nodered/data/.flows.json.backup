@@ -31,7 +31,7 @@
         "usetls": false,
         "tls": "",
         "influxdbVersion": "2.0",
-        "url": "https://ecoguardian.duckdns.org:8086",
+        "url": "http://influxdb:8086",
         "timeout": "",
         "rejectUnauthorized": false
     },
@@ -39,7 +39,7 @@
         "id": "mosquitto_local",
         "type": "mqtt-broker",
         "name": "Mosquitto Docker",
-        "broker": "10.149.212.160",
+        "broker": "MC-TV02XG93P9.local",
         "port": "8883",
         "tls": "tls_config_local",
         "clientid": "",
@@ -269,9 +269,7 @@
         "x": 820,
         "y": 80,
         "wires": [
-            [
-                "c1b03763374f0eb9"
-            ]
+            []
         ]
     }
 ]

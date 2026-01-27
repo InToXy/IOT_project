@@ -24,4 +24,5 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [alt_names]
-IP.1 = 10.149.212.160
+DNS.1 = MC-TV02XG93P9.local
+DNS.2 = mosquitto
