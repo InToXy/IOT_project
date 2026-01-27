@@ -6376,3 +6376,15 @@
 1769522360: Opening ipv4 listen socket on port 8883.
 1769522360: Opening ipv6 listen socket on port 8883.
 1769522360: mosquitto version 2.0.22 running
+1769522362: New connection from 172.21.0.3:35466 on port 8883.
+1769522362: New client connected from 172.21.0.3:35466 as nodered1c55b2bc56b35c65 (p2, c1, k60).
+1769522560: Client nodered1c55b2bc56b35c65 disconnected.
+1769522560: New connection from 172.21.0.3:49128 on port 8883.
+1769522560: New client connected from 172.21.0.3:49128 as noderedb644c605a408dc12 (p2, c1, k60).
+1769522798: Client noderedb644c605a408dc12 disconnected.
+1769522798: New connection from 172.21.0.3:37274 on port 8883.
+1769522798: New client connected from 172.21.0.3:37274 as nodered1cd382470c0253ec (p2, c1, k60).
+1769524161: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769525962: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769527763: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769529564: Saving in-memory database to /mosquitto/data//mosquitto.db.
