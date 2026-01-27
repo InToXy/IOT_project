@@ -6368,3 +6368,11 @@
 1769521894: Client nodered753a60567f0975c8 disconnected.
 1769521894: mosquitto version 2.0.22 terminating
 1769521894: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769522360: mosquitto version 2.0.22 starting
+1769522360: Config loaded from /mosquitto/config/mosquitto.conf.
+1769522360: Opening ipv4 listen socket on port 1883.
+1769522360: Opening ipv6 listen socket on port 1883.
+1769522360: Opening websockets listen socket on port 9001.
+1769522360: Opening ipv4 listen socket on port 8883.
+1769522360: Opening ipv6 listen socket on port 8883.
+1769522360: mosquitto version 2.0.22 running
