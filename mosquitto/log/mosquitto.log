@@ -6278,3 +6278,93 @@
 1769506294: Client noderedf2af3a545cfac126 disconnected.
 1769506294: New connection from 192.168.107.3:34526 on port 8883.
 1769506294: New client connected from 192.168.107.3:34526 as noderedce9de7eb0aa5034d (p2, c1, k60).
+1769507391: Client ESP32_LoRa_Gateway has exceeded timeout, disconnecting.
+1769508032: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769510376: Client noderedce9de7eb0aa5034d has exceeded timeout, disconnecting.
+1769510391: New connection from 192.168.107.3:39008 on port 8883.
+1769510391: New client connected from 192.168.107.3:39008 as noderedce9de7eb0aa5034d (p2, c1, k60).
+1769510786: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769512587: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769514268: New connection from 192.168.107.1:51021 on port 8883.
+1769514269: New client connected from 192.168.107.1:51021 as ESP32_LoRa_Gateway (p2, c1, k60).
+1769514388: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769515002: New connection from 192.168.107.1:27949 on port 8883.
+1769515003: New client connected from 192.168.107.1:27949 as ESP32_Gateway_Secure (p2, c1, k15).
+1769515020: Client ESP32_LoRa_Gateway has exceeded timeout, disconnecting.
+1769515053: New connection from 192.168.107.1:53510 on port 8883.
+1769515054: Client ESP32_Gateway_Secure already connected, closing old connection.
+1769515054: New client connected from 192.168.107.1:53510 as ESP32_Gateway_Secure (p2, c1, k15).
+1769515187: Client noderedce9de7eb0aa5034d disconnected.
+1769515187: New connection from 192.168.107.3:59828 on port 8883.
+1769515187: New client connected from 192.168.107.3:59828 as nodered7f3c2f3a4fa5e40a (p2, c1, k60).
+1769515296: Client nodered7f3c2f3a4fa5e40a disconnected.
+1769515296: New connection from 192.168.107.3:34616 on port 8883.
+1769515296: New client connected from 192.168.107.3:34616 as nodereda1235405427b1536 (p2, c1, k60).
+1769515407: Client ESP32_Gateway_Secure has exceeded timeout, disconnecting.
+1769515422: New connection from 192.168.107.1:43734 on port 8883.
+1769515424: New client connected from 192.168.107.1:43734 as ESP32_Gateway_Secure (p2, c1, k15).
+1769515454: Client nodereda1235405427b1536 disconnected.
+1769515454: New connection from 192.168.107.3:46744 on port 8883.
+1769515454: New client connected from 192.168.107.3:46744 as nodered7c7cd958d86257a9 (p2, c1, k60).
+1769515641: Client ESP32_Gateway_Secure has exceeded timeout, disconnecting.
+1769515661: New connection from 192.168.107.1:34935 on port 8883.
+1769515663: New client connected from 192.168.107.1:34935 as ESP32_Gateway_Secure (p2, c1, k60).
+1769516027: New connection from 192.168.107.1:21987 on port 8883.
+1769516028: Client ESP32_Gateway_Secure already connected, closing old connection.
+1769516028: New client connected from 192.168.107.1:21987 as ESP32_Gateway_Secure (p2, c1, k15).
+1769516189: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769516845: Client ESP32_Gateway_Secure has exceeded timeout, disconnecting.
+1769516852: New connection from 192.168.107.1:30681 on port 8883.
+1769516854: New client connected from 192.168.107.1:30681 as ESP32_LoRa_Gateway (p2, c1, k60).
+1769517404: New connection from 192.168.107.1:41777 on port 8883.
+1769517405: Client ESP32_LoRa_Gateway already connected, closing old connection.
+1769517405: New client connected from 192.168.107.1:41777 as ESP32_LoRa_Gateway (p2, c1, k60).
+1769517558: Client ESP32_LoRa_Gateway has exceeded timeout, disconnecting.
+1769517990: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769517996: New connection from 192.168.107.1:42330 on port 8883.
+1769517997: New client connected from 192.168.107.1:42330 as ESP32_LoRa_Gateway (p2, c1, k60).
+1769518800: Client nodered7c7cd958d86257a9 disconnected.
+1769518800: New connection from 192.168.107.3:59994 on port 8883.
+1769518800: New client connected from 192.168.107.3:59994 as nodered07728eb151972335 (p2, c1, k60).
+1769519169: New connection from 192.168.107.1:29754 on port 8883.
+1769519171: Client ESP32_LoRa_Gateway already connected, closing old connection.
+1769519171: New client connected from 192.168.107.1:29754 as ESP32_LoRa_Gateway (p2, c1, k15).
+1769519262: Client nodered07728eb151972335 disconnected.
+1769519262: New connection from 192.168.107.3:53158 on port 8883.
+1769519262: New client connected from 192.168.107.3:53158 as noderedb669db4f4658da86 (p2, c1, k60).
+1769519605: Client noderedb669db4f4658da86 disconnected.
+1769519605: New connection from 192.168.107.3:58446 on port 8883.
+1769519605: New client connected from 192.168.107.3:58446 as noderedb78123547c26a084 (p2, c1, k60).
+1769519791: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769520732: Client noderedb78123547c26a084 disconnected.
+1769520732: New connection from 192.168.107.3:60992 on port 8883.
+1769520732: New client connected from 192.168.107.3:60992 as nodered69e775113999513d (p2, c1, k60).
+1769520748: Client nodered69e775113999513d disconnected.
+1769520748: New connection from 192.168.107.3:38144 on port 8883.
+1769520748: New client connected from 192.168.107.3:38144 as nodered5d0c06859a4679e4 (p2, c1, k60).
+1769520810: Client nodered5d0c06859a4679e4 disconnected.
+1769520810: New connection from 192.168.107.3:58942 on port 8883.
+1769520810: New client connected from 192.168.107.3:58942 as nodered08680d2d5d06107d (p2, c1, k60).
+1769520964: Client nodered08680d2d5d06107d disconnected.
+1769520964: New connection from 192.168.107.3:42372 on port 8883.
+1769520964: New client connected from 192.168.107.3:42372 as nodered84da8544c1821051 (p2, c1, k60).
+1769521099: Client nodered84da8544c1821051 disconnected.
+1769521099: New connection from 192.168.107.3:35044 on port 8883.
+1769521099: New client connected from 192.168.107.3:35044 as nodered97e604377bd4dbc0 (p2, c1, k60).
+1769521192: Client ESP32_LoRa_Gateway has exceeded timeout, disconnecting.
+1769521209: New connection from 192.168.107.1:40293 on port 8883.
+1769521211: New client connected from 192.168.107.1:40293 as ESP32_LoRa_Gateway (p2, c1, k15).
+1769521284: New connection from 192.168.107.1:16986 on port 8883.
+1769521285: Client ESP32_LoRa_Gateway already connected, closing old connection.
+1769521285: New client connected from 192.168.107.1:16986 as ESP32_LoRa_Gateway (p2, c1, k15).
+1769521592: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769521609: Client ESP32_LoRa_Gateway has exceeded timeout, disconnecting.
+1769521615: New connection from 192.168.107.1:16678 on port 8883.
+1769521616: New client connected from 192.168.107.1:16678 as ESP32_LoRa_Gateway (p2, c1, k15).
+1769521797: Client nodered97e604377bd4dbc0 disconnected.
+1769521797: New connection from 192.168.107.3:47914 on port 8883.
+1769521797: New client connected from 192.168.107.3:47914 as nodered753a60567f0975c8 (p2, c1, k60).
+1769521804: Client ESP32_LoRa_Gateway has exceeded timeout, disconnecting.
+1769521894: Client nodered753a60567f0975c8 disconnected.
+1769521894: mosquitto version 2.0.22 terminating
+1769521894: Saving in-memory database to /mosquitto/data//mosquitto.db.

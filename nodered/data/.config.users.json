@@ -22,6 +22,9 @@
                     "json-view": false
                 }
             }
+        },
+        "debug": {
+            "filter": "filterSelected"
         }
     }
 }

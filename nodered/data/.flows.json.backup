@@ -31,7 +31,7 @@
         "usetls": false,
         "tls": "",
         "influxdbVersion": "2.0",
-        "url": "http://influxdb:8086",
+        "url": "https://ecoguardian.duckdns.org:8086/",
         "timeout": "",
         "rejectUnauthorized": false
     },
@@ -39,7 +39,7 @@
         "id": "mosquitto_local",
         "type": "mqtt-broker",
         "name": "Mosquitto Docker",
-        "broker": "MC-TV02XG93P9.local",
+        "broker": "mosquitto",
         "port": "8883",
         "tls": "tls_config_local",
         "clientid": "",
@@ -65,88 +65,89 @@
         "sessionExpiry": ""
     },
     {
-        "id": "48a71290963886f4",
+        "id": "d0ec322ab6d8e2bf",
         "type": "mqtt in",
         "z": "f6f2187d.f17ca8",
-        "name": "LoRa HEX brut",
-        "topic": "maison/plante/data/raw",
-        "qos": "0",
+        "name": "LoRa Wildcard",
+        "topic": "serre/+/plante/+/data",
+        "qos": "1",
         "datatype": "json",
         "broker": "mosquitto_local",
         "nl": false,
         "rap": false,
         "inputs": 0,
-        "x": 140,
-        "y": 320,
+        "x": 460,
+        "y": 580,
         "wires": [
             [
-                "5cf7c57528ef2ddc"
+                "6deb441b1636fbca"
             ]
         ]
     },
     {
-        "id": "5cf7c57528ef2ddc",
+        "id": "6deb441b1636fbca",
         "type": "function",
         "z": "f6f2187d.f17ca8",
-        "name": "Extraction HEX + ID",
-        "func": "// On récupère la chaine HEX spécifiquement dans l'objet\nlet hexString = \"\";\n\nif (msg.payload && msg.payload.hex) {\n    hexString = msg.payload.hex;\n} else if (typeof msg.payload === 'string') {\n    hexString = msg.payload;\n}\n\n// Timestamp actuel (Date du serveur)\nconst timestamp = Math.floor(Date.now() / 1000);\n\n// ID (soit celui du message, soit 1 par défaut)\nconst id = msg.payload.id || 1;\n\n// Mise à jour du payload pour la suite\nmsg.payload = {\n    hex: hexString,\n    id: id,\n    timestamp: timestamp,\n    rssi: msg.payload.rssi // On garde le RSSI pour info\n};\n\nreturn msg;",
+        "name": "Normalisation Data",
+        "func": "// Topic attendu : serre/ID_SERRE/plante/ID_PLANTE/data\n// Payload attendu : { \"encrypted\": \"...\", \"idp\": 1, \"ids\": 2 ... }\n\nlet data = msg.payload;\n\n// Sécurité JSON\nif (typeof data === 'string') {\n    try {\n        data = JSON.parse(data);\n    } catch(e) {\n        node.error(\"JSON invalide\");\n        return null;\n    }\n}\n\n// Construction du message propre\nmsg.payload = {\n    encrypted: data.encrypted || \"\",\n    id_plante: data.idp || 0,\n    id_serre:  data.ids || 0,\n    rssi:      data.rssi || 0,\n    timestamp: data.ts || Math.floor(Date.now() / 1000),\n    topic_complet: msg.topic\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 360,
-        "y": 320,
+        "x": 670,
+        "y": 580,
         "wires": [
             [
-                "5e16c92c925a1b2c"
+                "d2851a303273414d"
             ]
         ]
     },
     {
-        "id": "5e16c92c925a1b2c",
+        "id": "d2851a303273414d",
         "type": "function",
         "z": "f6f2187d.f17ca8",
         "name": "Déchiffrer XTEA",
-        "func": "// ========== CLE XTEA ==========\n// VERIFIEZ QUE CETTE CLE EST IDENTIQUE A L'ARDUINO\nconst XTEA_KEY = [0xA1B2C3D4, 0xE5F67890, 0x1A2B3C4D, 0x5E6F7809];\n\n// ========== ALGORYTHME ==========\nfunction xteaDec(v) {\n    let v0 = v[0], v1 = v[1];\n    const delta = 0x9E3779B9;\n    let sum = delta * 32;\n    \n    for (let i = 0; i < 32; i++) {\n        v1 -= (((v0 << 4) ^ (v0 >>> 5)) + v0) ^ (sum + XTEA_KEY[(sum >>> 11) & 3]);\n        v1 = v1 >>> 0;\n        sum -= delta;\n        sum = sum >>> 0;\n        v0 -= (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (sum + XTEA_KEY[sum & 3]);\n        v0 = v0 >>> 0;\n    }\n    return [v0, v1];\n}\n\nfunction decryptMessage(hex) {\n    if (!hex || typeof hex !== 'string') return \"\";\n    let out = \"\";\n    \n    for (let i = 0; i < hex.length; i += 16) {\n        let sub = hex.substring(i, i + 16);\n        if (sub.length < 16) break;\n        \n        let b = [\n            parseInt(sub.substring(0, 8), 16),\n            parseInt(sub.substring(8, 16), 16)\n        ];\n        \n        b = xteaDec(b);\n        \n        // Conversion en caractères\n        for (let k = 0; k < 2; k++) {\n            for (let j = 0; j < 4; j++) {\n                // Note: Si le résultat est du charabia, essayez de changer\n                // (j * 8) en ((3-j) * 8) ici (Endianness)\n                let byte = (b[k] >>> (j * 8)) & 0xFF;\n                if (byte !== 0) out += String.fromCharCode(byte);\n            }\n        }\n    }\n    return out.trim();\n}\n\nfunction extractValue(data, key) {\n    if (!data) return null;\n    const s = data.indexOf(key);\n    if (s === -1) return null;\n    const start = s + key.length;\n    let end = data.indexOf(';', start);\n    if (end === -1) end = data.length;\n    return data.substring(start, end);\n}\n\n// ========== EXECUTION ==========\ntry {\n    const decrypted = decryptMessage(msg.payload.hex);\n    \n    // Extraction des valeurs avec sécurité (|| 0)\n    msg.payload.decrypted_raw = decrypted;\n    msg.payload.temperature = parseFloat(extractValue(decrypted, \"T=\"));\n    msg.payload.humidite = parseFloat(extractValue(decrypted, \"H=\"));\n    msg.payload.sol = parseInt(extractValue(decrypted, \"S=\"));\n    msg.payload.lumiere = parseInt(extractValue(decrypted, \"L=\"));\n\n    // Vérification si le décodage a marché\n    msg.payload.success = !isNaN(msg.payload.temperature);\n    \n    return msg;\n} catch (e) {\n    node.error(\"Erreur XTEA: \" + e.message);\n    return null;\n}",
+        "func": "// ========== CLE XTEA ==========\n// VERIFIEZ QUE CETTE CLE EST IDENTIQUE A L'ARDUINO\nconst XTEA_KEY = [0xA1B2C3D4, 0xE5F67890, 0x1A2B3C4D, 0x5E6F7809];\n\n// ========== ALGORYTHME ==========\nfunction xteaDec(v) {\n    let v0 = v[0], v1 = v[1];\n    const delta = 0x9E3779B9;\n    let sum = delta * 32;\n    \n    for (let i = 0; i < 32; i++) {\n        v1 -= (((v0 << 4) ^ (v0 >>> 5)) + v0) ^ (sum + XTEA_KEY[(sum >>> 11) & 3]);\n        v1 = v1 >>> 0;\n        sum -= delta;\n        sum = sum >>> 0;\n        v0 -= (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (sum + XTEA_KEY[sum & 3]);\n        v0 = v0 >>> 0;\n    }\n    return [v0, v1];\n}\n\nfunction decryptMessage(hex) {\n    if (!hex || typeof hex !== 'string') return \"\";\n    let out = \"\";\n    \n    for (let i = 0; i < hex.length; i += 16) {\n        let sub = hex.substring(i, i + 16);\n        if (sub.length < 16) break;\n        \n        let b = [\n            parseInt(sub.substring(0, 8), 16),\n            parseInt(sub.substring(8, 16), 16)\n        ];\n        \n        b = xteaDec(b);\n        \n        // Conversion en caractères\n        for (let k = 0; k < 2; k++) {\n            for (let j = 0; j < 4; j++) {\n                let byte = (b[k] >>> (j * 8)) & 0xFF;\n                if (byte !== 0) out += String.fromCharCode(byte);\n            }\n        }\n    }\n    return out.trim();\n}\n\nfunction extractValue(data, key) {\n    if (!data) return null;\n    const s = data.indexOf(key);\n    if (s === -1) return null;\n    const start = s + key.length;\n    let end = data.indexOf(';', start);\n    if (end === -1) end = data.length;\n    return data.substring(start, end);\n}\n\n// ========== EXECUTION ==========\ntry {\n    const decrypted = decryptMessage(msg.payload.encrypted);\n    \n    msg.payload.decrypted_raw = decrypted;\n    msg.payload.temperature = parseFloat(extractValue(decrypted, \"T=\"));\n    msg.payload.humidite = parseFloat(extractValue(decrypted, \"H=\"));\n    msg.payload.sol = parseInt(extractValue(decrypted, \"S=\"));\n    msg.payload.lumiere = parseInt(extractValue(decrypted, \"L=\"));\n\n    // Vérification basique\n    msg.payload.success = !isNaN(msg.payload.temperature);\n    \n    // Nettoyage\n    delete msg.payload.encrypted;\n    \n    return msg;\n} catch (e) {\n    node.error(\"Erreur XTEA: \" + e.message);\n    return null;\n}",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 580,
-        "y": 320,
+        "x": 900,
+        "y": 580,
         "wires": [
             [
-                "f89ed0b5c7679b5f"
+                "9c981c7a427ea5a2",
+                "1f2c1fe3d19a88ef"
             ]
         ]
     },
     {
-        "id": "c1b03763374f0eb9",
+        "id": "9c981c7a427ea5a2",
         "type": "function",
         "z": "f6f2187d.f17ca8",
         "name": "Formatage pour InfluxDB",
-        "func": "const d = msg.payload;\n\n// 1. Sécurité : Si le déchiffrement a échoué, on n'envoie RIEN à la base de données\n// pour éviter de polluer les graphs avec des 0 ou des erreurs.\nif (!d.success) {\n    return null;\n}\n\n// 2. Préparation des données (Variables venant du noeud précédent)\n// On s'assure que ce sont des nombres\nconst temp = parseFloat(d.temperature);\nconst hum = Number(d.humidite);\nconst lum = Number(d.lumiere);\nconst hum_sol = Number(d.sol);\nconst rssi = Number(d.rssi) || 0;\n\n// 3. Construction du message InfluxDB (Format Array of Objects)\n// Cela permet de définir précisément les TAGS et les FIELDS\n\nif (!d.success) return null;\n\n// On prépare l'objet de données\nconst influxData = {\n    temperature: parseFloat(d.temperature),\n    humidite: Number(d.humidite),\n    luminosite: Number(d.lumiere),\n    humidite_sol: Number(d.sol),\n    rssi: Number(d.rssi) || 0\n};\n\nconst influxTags = {\n    id_plante: d.id.toString(),\n    location: \"maison\"\n};\n\n// Voici le format exact attendu par le nœud quand le champ Measurement est vide :\nmsg.payload = influxData;      // Les \"Fields\"\nmsg.tags = influxTags;         // Les \"Tags\"\nmsg.measurement = \"monitor_plante\"; // Le nom de la table\n\nreturn msg;",
+        "func": "const d = msg.payload;\n\n// 1. Sécurité : Si le déchiffrement a échoué\nif (!d.success) {\n    return null;\n}\n\n// 2. Préparation des données\nconst influxData = {\n    temperature: parseFloat(d.temperature),\n    humidite: parseFloat(d.humidite),\n    luminosite: parseInt(d.lumiere),\n    humidite_sol: parseInt(d.sol),\n    rssi: parseInt(d.rssi) || 0\n};\n\n// 3. Préparation des TAGS (Indexation)\n// C'est ça qui te permet de filtrer par serre ou plante dans Grafana\nconst influxTags = {\n    id_plante: d.id_plante.toString(),\n    id_serre: d.id_serre.toString(),\n    location: \"maison\"\n};\n\n// 4. Formatage final pour le noeud InfluxDB\n// On sépare Payload (valeurs) et Tags (étiquettes)\nmsg.payload = influxData;\nmsg.tags = influxTags;\nmsg.measurement = \"monitor_plante\"; // Nom de la table\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 830,
-        "y": 200,
+        "x": 1150,
+        "y": 580,
         "wires": [
             [
-                "4853628f029d2cc2",
-                "04679a86156e955d"
+                "fc849d93ea845daa",
+                "318513acef039fc9"
             ]
         ]
     },
     {
-        "id": "4853628f029d2cc2",
+        "id": "fc849d93ea845daa",
         "type": "influxdb out",
         "z": "f6f2187d.f17ca8",
         "influxdb": "influx_conf",
@@ -159,15 +160,15 @@
         "retentionPolicyV18Flux": "",
         "org": "maison",
         "bucket": "plante_data",
-        "x": 1160,
-        "y": 120,
+        "x": 1420,
+        "y": 580,
         "wires": []
     },
     {
-        "id": "f89ed0b5c7679b5f",
+        "id": "1f2c1fe3d19a88ef",
         "type": "debug",
         "z": "f6f2187d.f17ca8",
-        "name": "Données Déchiffrées",
+        "name": "Data Décryptée",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -176,100 +177,70 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 840,
-        "y": 280,
+        "x": 1140,
+        "y": 660,
         "wires": []
     },
     {
-        "id": "fd5bbb7418b76d9f",
-        "type": "inject",
-        "z": "f6f2187d.f17ca8",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "{\"success\":true,\"id\":\"A1-42\",\"temperature\":30,\"humidite\":30,\"lumiere\":500,\"sol\":10,\"rssi\":-65}",
-        "payloadType": "json",
-        "x": 530,
-        "y": 140,
-        "wires": [
-            [
-                "c1b03763374f0eb9"
-            ]
-        ]
-    },
-    {
-        "id": "04679a86156e955d",
+        "id": "318513acef039fc9",
         "type": "debug",
         "z": "f6f2187d.f17ca8",
-        "name": "debug 1",
+        "name": "Check Influx",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "false",
+        "complete": "true",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1200,
-        "y": 240,
+        "x": 1420,
+        "y": 500,
         "wires": []
     },
     {
-        "id": "gen_trigger",
+        "id": "simu_inject",
         "type": "inject",
         "z": "f6f2187d.f17ca8",
-        "name": "Auto Trigger (5s)",
+        "name": "Toutes les 5s",
         "props": [
             {
                 "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
             }
         ],
-        "repeat": "60",
+        "repeat": "5",
         "crontab": "",
-        "once": true,
+        "once": false,
         "onceDelay": 0.1,
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 590,
-        "y": 80,
+        "x": 300,
+        "y": 200,
         "wires": [
             [
-                "gen_random_data"
+                "simu_func"
             ]
         ]
     },
     {
-        "id": "gen_random_data",
+        "id": "simu_func",
         "type": "function",
         "z": "f6f2187d.f17ca8",
-        "name": "Générateur Aléatoire",
-        "func": "// Liste d'IDs fictifs\nconst plantIds = [\"Plante_Salon\", \"Plante_Cuisine\"];\n\n// Fonction helper\nfunction getRandom(min, max) {\n    return Math.random() * (max - min) + min;\n}\n\nconst randomId = plantIds[Math.floor(Math.random() * plantIds.length)];\n\n// Simulation des données capteurs\nmsg.payload = {\n    success: true,\n    id: randomId,\n    temperature: getRandom(0, 50).toFixed(1),\n    humidite: Math.floor(getRandom(0, 100)),\n    lumiere: Math.floor(getRandom(0, 1023)),\n    sol: Math.floor(getRandom(0, 950)),\n    rssi: Math.floor(getRandom(-85, -55))\n};\n\nreturn msg;",
+        "name": "Simulateur Capteurs",
+        "func": "// === CONFIGURATION ===\nconst serres = [1, 2];\nconst plantes = [1, 2, 3];\n\nfunction getRandom(min, max) {\n    return Math.random() * (max - min) + min;\n}\n\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nconst ids = serres[Math.floor(Math.random() * serres.length)];\nconst idp = plantes[Math.floor(Math.random() * plantes.length)];\n\nmsg.payload = {\n    success: true,\n    id_serre: ids,\n    id_plante: idp,\n    temperature: getRandom(18, 30).toFixed(1),\n    humidite: getRandomInt(30, 80),\n    lumiere: getRandomInt(0, 1023),\n    sol: getRandomInt(200, 900),\n    rssi: getRandomInt(-90, -40),\n    timestamp: Math.floor(Date.now() / 1000)\n};\n\nmsg.topic = `serre/${ids}/plante/${idp}/data`;\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 820,
-        "y": 80,
+        "x": 520,
+        "y": 200,
         "wires": [
-            []
+            [
+                "9c981c7a427ea5a2"
+            ]
         ]
     }
 ]
