@@ -1,8 +1,12 @@
+#include "mbedtls/md.h"
 #include <HardwareSerial.h>
 #include <PubSubClient.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <time.h>
+
+// ================== SÉCURITÉ HMAC ==================
+const char *hmac_secret_key = "CleSecreteGroupe7";
 
 // ================== CONFIGURATION WIFI ==================
 const char *ssid = "vivo flo";
@@ -11,7 +15,6 @@ const char *password = "fuckyoubitch";
 // ================== CONFIGURATION MQTT ==================
 const char *mqtt_server = "MC-TV02XG93P9.local";
 const int mqtt_port = 8883;
-// Le topic est maintenant dynamique, on ne définit plus de topic global ici.
 
 // ================== CERTIFICATS TLS ==================
 const char *ca_cert = R"EOF(
@@ -97,7 +100,7 @@ x2/BkJnN1GW0feDcFmF7vyXdbRE7/V/xz9a4einDyCcxrBvEbOX8P3Qq0fZFKsnk
 // ================== BUFFER MQTT ==================
 #define MAX_MQTT_BUFFER 30
 struct SavedMessage {
-  String topic; // On garde le topic spécifique car il est dynamique
+  String topic;
   String payload;
   bool ready;
 };
@@ -106,25 +109,60 @@ int mqttHead = 0;
 int mqttTail = 0;
 int mqttCount = 0;
 
-// ================== OBJETS ==================
 WiFiClientSecure wifiClient;
 PubSubClient client(wifiClient);
-HardwareSerial LoRaSerial(2); // UART2 sur ESP32
+HardwareSerial LoRaSerial(2);
 
 String lineBuf = "";
 unsigned long lastReconnect = 0;
 unsigned long messageCount = 0;
 
-// ================== FONCTIONS UTILITAIRES ==================
-void printSeparator() {
-  Serial.println("========================================");
+// ================== LOGS & OUTILS ==================
+String getLogTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
+    return "[INIT] ";
+  char timeStringBuff[50];
+  strftime(timeStringBuff, sizeof(timeStringBuff), "[%H:%M:%S] ", &timeinfo);
+  return String(timeStringBuff);
 }
 
-void printHeader(String title) {
-  printSeparator();
-  Serial.print("  ");
-  Serial.println(title);
-  printSeparator();
+String getMqttError(int state) {
+  switch (state) {
+  case -4:
+    return "TIMEOUT";
+  case -3:
+    return "LOST";
+  case -2:
+    return "FAILED";
+  case -1:
+    return "DISCONNECTED";
+  case 0:
+    return "CONNECTED";
+  case 5:
+    return "UNAUTHORIZED";
+  default:
+    return "CODE_" + String(state);
+  }
+}
+
+void printSeparator() {
+  Serial.println(
+      "------------------------------------------------------------");
+}
+
+void printLogo() {
+  Serial.println("\n\n");
+  Serial.println(
+      "============================================================");
+  Serial.println("   ____ ____  ____  _____    ___ ___ _____ ");
+  Serial.println("  / ___|  _ \\|  _ \\|___  |  |_ _/ _ \\_   _|");
+  Serial.println(" | |  _| |_) | |_) |  / /    | | | | || |  ");
+  Serial.println(" | |_| |  _ <|  __/  / /     | | |_| || |  ");
+  Serial.println("  \\____|_| \\_\\_|    /_/     |___\\___/ |_|  ");
+  Serial.println("\n        >>> PASSERELLE IOT SÉCURISÉE (HMAC) <<<");
+  Serial.println(
+      "============================================================\n");
 }
 
 void addToMqttBuffer(String topic, String data) {
@@ -134,14 +172,14 @@ void addToMqttBuffer(String topic, String data) {
     mqttBuffer[mqttHead].ready = true;
     mqttHead = (mqttHead + 1) % MAX_MQTT_BUFFER;
     mqttCount++;
-    Serial.print("[BUFFER] Msg stocke pour ");
-    Serial.println(topic);
+    Serial.print(getLogTime() + "💾 [BUFFER] Ajout OK. Queue: ");
+    Serial.print(mqttCount);
+    Serial.println("/30");
   } else {
-    Serial.println("[BUFFER] PLEIN ! Message perdu !");
+    Serial.println(getLogTime() + "❌ [BUFFER] ERREUR: Plein !");
   }
 }
 
-// Convertit HEX (ex: "4142") vers ASCII (ex: "AB")
 String hexToAscii(String hex) {
   String ascii = "";
   for (int i = 0; i < hex.length(); i += 2) {
@@ -152,39 +190,56 @@ String hexToAscii(String hex) {
   return ascii;
 }
 
-// ================== WIFI / NTP / SSL ==================
+String calculateHMAC(String payload, const char *key) {
+  byte hmacResult[32];
+  mbedtls_md_context_t ctx;
+  mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
+  mbedtls_md_init(&ctx);
+  mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 1);
+  mbedtls_md_hmac_starts(&ctx, (const unsigned char *)key, strlen(key));
+  mbedtls_md_hmac_update(&ctx, (const unsigned char *)payload.c_str(),
+                         payload.length());
+  mbedtls_md_hmac_finish(&ctx, hmacResult);
+  mbedtls_md_free(&ctx);
+
+  String hashStr = "";
+  for (int i = 0; i < 32; i++) {
+    if (hmacResult[i] < 16)
+      hashStr += "0";
+    hashStr += String(hmacResult[i], HEX);
+  }
+  return hashStr;
+}
+
+// ================== MAIN ==================
 void connectWiFi() {
-  Serial.println("\n[WiFi] Connexion...");
+  Serial.println(getLogTime() + "📶 [WIFI] Connexion à " + String(ssid));
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-
   int attempts = 0;
   while (WiFi.status() != WL_CONNECTED && attempts < 20) {
     delay(500);
     Serial.print(".");
     attempts++;
   }
-
+  Serial.println();
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(" OK");
-    Serial.print("[WiFi] IP: ");
-    Serial.println(WiFi.localIP());
+    Serial.println(getLogTime() +
+                   "✅ [WIFI] CONNECTÉ ! IP: " + WiFi.localIP().toString());
   } else {
-    Serial.println(" ECHEC");
+    Serial.println(getLogTime() + "❌ [WIFI] ÉCHEC.");
   }
 }
 
 void syncNTP() {
   configTime(3600, 0, "pool.ntp.org", "time.nist.gov");
-  Serial.print("[NTP] Synchro...");
+  Serial.print(getLogTime() + "⏳ [NTP] Sync Heure...");
   time_t now = 0;
-  int retry = 0;
-  while (time(&now) && now < 1000000000 && retry < 10) {
+  while (time(&now) && now < 1000000000) {
     delay(500);
     Serial.print(".");
-    retry++;
   }
-  Serial.println(now > 1000000000 ? " OK" : " ECHEC");
+  Serial.println(" OK");
 }
 
 void setupSSL() {
@@ -195,145 +250,146 @@ void setupSSL() {
 
 void reconnectMQTT() {
   if (!client.connected()) {
-    Serial.print("[MQTT] Connexion...");
+    Serial.print(getLogTime() + "☁️ [MQTT] Connexion...");
     if (client.connect("ESP32_LoRa_Gateway")) {
       Serial.println(" OK");
     } else {
-      Serial.print(" ECHEC (");
-      Serial.print(client.state());
-      Serial.println(")");
+      Serial.print(" ÉCHEC: ");
+      Serial.println(client.state());
     }
   }
 }
 
-// ================== LORA ==================
+// === CONFIGURATION LORA AVEC PUISSANCE REDUITE (10dBm) ===
 void setupLoRa() {
+  Serial.println(getLogTime() + "📻 [LORA] Init UART...");
   LoRaSerial.begin(9600, SERIAL_8N1, 16, 17);
   delay(1000);
+
   LoRaSerial.println("AT+MODE=TEST");
   delay(500);
-  LoRaSerial.println("AT+TEST=RFCFG,868,SF7,125,12,15,14,ON,OFF,OFF");
+
+  // MODIFICATION CRITIQUE : Puissance à 10dBm pour éviter le crash USB
+  Serial.println(getLogTime() + "📻 [LORA] Config RF (Power Low 10dBm)...");
+  LoRaSerial.println("AT+TEST=RFCFG,868,SF7,125,12,15,10,ON,OFF,OFF");
   delay(500);
+
   LoRaSerial.println("AT+TEST=RXLRPKT");
-  Serial.println("[LoRa] Config OK, En ecoute.");
+  Serial.println(getLogTime() + "✅ [LORA] Module PRÊT (Rx)");
 }
 
+// === FONCTION ACK SECURISEE ===
 void sendAck() {
-  delay(50);
+  // On vide d'abord le buffer pour éviter les collisions
+  while (LoRaSerial.available())
+    LoRaSerial.read();
 
-  // IMPORTANT: payload HEX entre guillemets
+  Serial.print(getLogTime() + "📤 [LORA] Envoi ACK... ");
+
+  // Envoi commande
   LoRaSerial.println("AT+TEST=TXLRPKT,\"41434B\"");
 
-  // (optionnel) lire/afficher la réponse du module pendant ~500ms
-  unsigned long t0 = millis();
-  while (millis() - t0 < 500) {
-    while (LoRaSerial.available()) {
-      Serial.write(LoRaSerial.read());
-    }
-  }
+  // Attente courte et simple (ne pas bloquer trop longtemps)
+  delay(200);
 
-  // Revenir en RX
-  LoRaSerial.print("AT+TEST=RXLRPKT\r\n");
-  Serial.println("[LoRa] ACK envoyé");
+  // Retour immédiat en réception
+  LoRaSerial.println("AT+TEST=RXLRPKT");
+  Serial.println("OK");
 }
 
 void processLoRaData(String hexRaw) {
   messageCount++;
-
-  // 1. Convertir HEX brut en ASCII
   String asciiData = hexToAscii(hexRaw);
 
-  Serial.println("\n--- RECEPTION LORA ---");
-  Serial.print("HEX: ");
-  Serial.println(hexRaw);
-  Serial.print("ASCII: ");
-  Serial.println(asciiData);
+  printSeparator();
+  Serial.println(getLogTime() + "📡 RECEPTION #" + String(messageCount));
+  Serial.println("   > BRUT: " + hexRaw);
+  Serial.println("   > TXT : " + asciiData);
 
-  // 2. Vérifier Signature
   if (!asciiData.startsWith("GROUPE7")) {
-    Serial.println("[IGNORE] Mauvaise signature");
+    Serial.println("   ⚠️ [IGNORE] Signature invalide (Pas GROUPE7)");
+    printSeparator();
     return;
   }
 
-  // 3. Envoyer ACK
+  // 1. ACK AVEC PRECAUTION
   sendAck();
 
-  // 4. Parser les données: GROUPE7;IDS=01;IDP=A12;ENC=xxxx
-  int idxIDS = asciiData.indexOf("IDS=");
-  int idxIDP = asciiData.indexOf("IDP=");
-  int idxENC = asciiData.indexOf("ENC=");
-
-  if (idxIDS == -1 || idxIDP == -1 || idxENC == -1) {
-    Serial.println("[ERREUR] Format incorrect (manque IDS, IDP ou ENC)");
+  // 2. VÉRIFICATION HMAC
+  int idxSig = asciiData.indexOf(";SIG=");
+  if (idxSig == -1) {
+    Serial.println(getLogTime() + "⛔ [SECURITE] REJETÉ : Pas de signature !");
+    printSeparator();
     return;
   }
 
-  // Extraire les valeurs
-  // IDS est entre "IDS=" et le prochain ";"
+  String dataToVerify = asciiData.substring(0, idxSig);
+  String receivedSig = asciiData.substring(idxSig + 5);
+  receivedSig.trim(); // Nettoyage \r\n
+
+  String computedSig = calculateHMAC(dataToVerify, hmac_secret_key);
+
+  if (!receivedSig.equalsIgnoreCase(computedSig)) {
+    Serial.println(getLogTime() +
+                   "⛔ [SECURITE] ALERTE : Signature INVALIDE !");
+    Serial.println("   > Reçu: [" + receivedSig + "]");
+    Serial.println("   > Calc: [" + computedSig + "]");
+    printSeparator();
+    return;
+  }
+
+  Serial.println(getLogTime() + "🛡️ [SECURITE] Signature OK.");
+
+  // 3. PARSING
+  int idxIDS = dataToVerify.indexOf("IDS=");
+  int idxIDP = dataToVerify.indexOf("IDP=");
+  int idxENC = dataToVerify.indexOf("ENC=");
+
+  if (idxIDS == -1 || idxIDP == -1 || idxENC == -1)
+    return;
+
   String valIDS =
-      asciiData.substring(idxIDS + 4, asciiData.indexOf(";", idxIDS));
-
-  // IDP est entre "IDP=" et le prochain ";"
+      dataToVerify.substring(idxIDS + 4, dataToVerify.indexOf(";", idxIDS));
   String valIDP =
-      asciiData.substring(idxIDP + 4, asciiData.indexOf(";", idxIDP));
+      dataToVerify.substring(idxIDP + 4, dataToVerify.indexOf(";", idxIDP));
+  String valENC = dataToVerify.substring(idxENC + 4);
 
-  // ENC est la fin de la chaine (ou jusqu'au prochain ; si tu ajoutes des trucs
-  // après)
-  String valENC = asciiData.substring(idxENC + 4);
+  Serial.println("   ✅ [DATA] IDS:" + valIDS + " IDP:" + valIDP);
 
-  Serial.println("[PARSER] IDS: " + valIDS);
-  Serial.println("[PARSER] IDP: " + valIDP);
-  Serial.println("[PARSER] ENC: " + valENC);
+  String topic = "serre/" + valIDS + "/plante/" + valIDP + "/data";
+  String json = "{\"encrypted\":\"" + valENC + "\",\"ids\":\"" + valIDS +
+                "\",\"idp\":\"" + valIDP +
+                "\",\"rssi\":" + String(WiFi.RSSI()) +
+                ",\"ts\":" + String(time(NULL)) + "}";
 
-  // 5. Construire Topic et JSON
-  String dynamicTopic = "serre/" + valIDS + "/plante/" + valIDP + "/data";
-
-  String json = "{";
-  json += "\"encrypted\":\"" + valENC + "\",";
-  json += "\"ids\":\"" + valIDS + "\",";
-  json += "\"idp\":\"" + valIDP + "\",";
-  json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
-  json += "\"ts\":" + String(time(NULL));
-  json += "}";
-
-  // 6. Publier ou Bufferiser
+  // 4. MQTT / Buffer
   if (client.connected()) {
-    Serial.print("[MQTT] Pub -> " + dynamicTopic + " : ");
-    if (client.publish(dynamicTopic.c_str(), json.c_str())) {
+    Serial.print(getLogTime() + "🚀 [MQTT] Envoi... ");
+    if (client.publish(topic.c_str(), json.c_str()))
       Serial.println("OK");
-    } else {
-      Serial.println("ECHEC");
-      addToMqttBuffer(dynamicTopic, json);
+    else {
+      Serial.println("ÉCHEC -> Buffer");
+      addToMqttBuffer(topic, json);
     }
   } else {
-    Serial.println("[MQTT] Offline -> Buffer");
-    addToMqttBuffer(dynamicTopic, json);
+    Serial.println(getLogTime() + "⚠️ [MQTT] Offline -> Buffer");
+    addToMqttBuffer(topic, json);
   }
 }
 
-// ================== SETUP ==================
 void setup() {
   Serial.begin(9600);
   delay(2000);
-
-  printHeader("ESP32 GATEWAY - PARSING CLAIR");
-
-  // WiFi & NTP
+  printLogo();
   connectWiFi();
   if (WiFi.status() == WL_CONNECTED)
     syncNTP();
-
-  // TLS & MQTT
   setupSSL();
   client.setServer(mqtt_server, mqtt_port);
-
-  // LoRa
   setupLoRa();
 }
 
-// ================== LOOP ==================
 void loop() {
-  // Reconnexion auto
   if (WiFi.status() != WL_CONNECTED) {
     if (millis() - lastReconnect > 10000) {
       lastReconnect = millis();
@@ -346,44 +402,32 @@ void loop() {
     }
   } else {
     client.loop();
-
-    // Vidage Buffer
     if (mqttCount > 0) {
-      Serial.print("[BUFFER] Envoi vers " + mqttBuffer[mqttTail].topic +
-                   "... ");
+      Serial.print(getLogTime() + "🔄 [BUFFER] Vidage... ");
       if (client.publish(mqttBuffer[mqttTail].topic.c_str(),
                          mqttBuffer[mqttTail].payload.c_str())) {
         Serial.println("OK");
         mqttBuffer[mqttTail].ready = false;
         mqttTail = (mqttTail + 1) % MAX_MQTT_BUFFER;
         mqttCount--;
-      } else {
-        Serial.println("ECHEC");
       }
       delay(100);
     }
   }
 
-  // Lecture LoRa
   while (LoRaSerial.available()) {
     char c = (char)LoRaSerial.read();
-
     if (c == '\n') {
       String line = lineBuf;
       lineBuf = "";
       line.trim();
-
-      // Format reçu : +TEST: RX,"HEXSTRING",...
       if (line.startsWith("+TEST: RX")) {
         int q1 = line.indexOf('\"');
         int q2 = line.lastIndexOf('\"');
-        if (q1 != -1 && q2 > q1) {
-          String hexContent = line.substring(q1 + 1, q2);
-          processLoRaData(hexContent);
-        }
+        if (q1 != -1 && q2 > q1)
+          processLoRaData(line.substring(q1 + 1, q2));
       }
-    } else if (c != '\r') {
+    } else if (c != '\r')
       lineBuf += c;
-    }
   }
 }

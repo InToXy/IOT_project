@@ -31,7 +31,7 @@
         "usetls": false,
         "tls": "",
         "influxdbVersion": "2.0",
-        "url": "https://ecoguardian.duckdns.org:8086/",
+        "url": "https://ecoguardian.duckdns.org:8086",
         "timeout": "",
         "rejectUnauthorized": false
     },
@@ -120,8 +120,7 @@
         "y": 580,
         "wires": [
             [
-                "9c981c7a427ea5a2",
-                "1f2c1fe3d19a88ef"
+                "9c981c7a427ea5a2"
             ]
         ]
     },
@@ -141,8 +140,8 @@
         "y": 580,
         "wires": [
             [
-                "fc849d93ea845daa",
-                "318513acef039fc9"
+                "318513acef039fc9",
+                "fc849d93ea845daa"
             ]
         ]
     },
@@ -162,23 +161,6 @@
         "bucket": "plante_data",
         "x": 1420,
         "y": 580,
-        "wires": []
-    },
-    {
-        "id": "1f2c1fe3d19a88ef",
-        "type": "debug",
-        "z": "f6f2187d.f17ca8",
-        "name": "Data Décryptée",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1140,
-        "y": 660,
         "wires": []
     },
     {
@@ -208,7 +190,7 @@
                 "p": "payload"
             }
         ],
-        "repeat": "5",
+        "repeat": "120",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
@@ -238,9 +220,7 @@
         "x": 520,
         "y": 200,
         "wires": [
-            [
-                "9c981c7a427ea5a2"
-            ]
+            []
         ]
     }
 ]

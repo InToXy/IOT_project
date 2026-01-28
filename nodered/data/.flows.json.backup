@@ -31,7 +31,7 @@
         "usetls": false,
         "tls": "",
         "influxdbVersion": "2.0",
-        "url": "https://ecoguardian.duckdns.org:8086/",
+        "url": "https://ecoguardian.duckdns.org:8086",
         "timeout": "",
         "rejectUnauthorized": false
     },
@@ -120,8 +120,7 @@
         "y": 580,
         "wires": [
             [
-                "9c981c7a427ea5a2",
-                "1f2c1fe3d19a88ef"
+                "9c981c7a427ea5a2"
             ]
         ]
     },
@@ -130,7 +129,7 @@
         "type": "function",
         "z": "f6f2187d.f17ca8",
         "name": "Formatage pour InfluxDB",
-        "func": "const d = msg.payload;\n\n// 1. Sécurité : Si le déchiffrement a échoué\nif (!d.success) {\n    return null;\n}\n\n// 2. Préparation des données\nconst influxData = {\n    temperature: parseFloat(d.temperature),\n    humidite: parseFloat(d.humidite),\n    luminosite: parseInt(d.lumiere),\n    humidite_sol: parseInt(d.sol),\n    rssi: parseInt(d.rssi) || 0\n};\n\n// 3. Préparation des TAGS (Indexation)\n// C'est ça qui te permet de filtrer par serre ou plante dans Grafana\nconst influxTags = {\n    id_plante: d.id_plante.toString(),\n    id_serre: d.id_serre.toString(),\n    location: \"maison\"\n};\n\n// 4. Formatage final pour le noeud InfluxDB\n// On sépare Payload (valeurs) et Tags (étiquettes)\nmsg.payload = influxData;\nmsg.tags = influxTags;\nmsg.measurement = \"monitor_plante\"; // Nom de la table\n\nreturn msg;",
+        "func": "// Récupération des données du simulateur (ou du déchiffreur)\nconst d = msg.payload;\n\n// 1. Sécurité : Vérification de la validité des données\nif (!d || d.success === false) {\n    node.warn(\"Données invalides ou échec de déchiffrement\");\n    return null;\n}\n\n// 2. Formatage pour InfluxDB (Structure compatible avec le nœud Influx Out)\n// Le nœud InfluxDB attend souvent un tableau de deux éléments : [fields, tags]\nmsg.payload = [\n    {\n        temperature: parseFloat(d.temperature),\n        humidite: parseFloat(d.humidite),\n        luminosite: parseInt(d.lumiere),\n        humidite_sol: parseInt(d.sol),\n        rssi: parseInt(d.rssi) || 0\n    },\n    {\n        id_plante: String(d.id_plante),\n        id_serre: String(d.id_serre),\n        location: \"maison\"\n    }\n];\n\n// 3. Métadonnées du point\nmsg.measurement = \"monitor_plante\";\n\n// Optionnel : Forcer le timestamp si vous voulez utiliser celui du simulateur\nif (d.timestamp) {\n    msg.timestamp = d.timestamp * 1000; // Conversion secondes vers millisecondes\n}\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -141,7 +140,6 @@
         "y": 580,
         "wires": [
             [
-                "fc849d93ea845daa",
                 "318513acef039fc9"
             ]
         ]
@@ -162,23 +160,6 @@
         "bucket": "plante_data",
         "x": 1420,
         "y": 580,
-        "wires": []
-    },
-    {
-        "id": "1f2c1fe3d19a88ef",
-        "type": "debug",
-        "z": "f6f2187d.f17ca8",
-        "name": "Data Décryptée",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1140,
-        "y": 660,
         "wires": []
     },
     {
@@ -208,7 +189,7 @@
                 "p": "payload"
             }
         ],
-        "repeat": "5",
+        "repeat": "120",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
@@ -238,9 +219,7 @@
         "x": 520,
         "y": 200,
         "wires": [
-            [
-                "9c981c7a427ea5a2"
-            ]
+            []
         ]
     }
 ]
