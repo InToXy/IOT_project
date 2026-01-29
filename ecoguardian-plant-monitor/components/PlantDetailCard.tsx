@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlantProfile } from '../types';
-import { ThermometerIcon, DropletsIcon, SunIcon, ActivityIcon } from './Icons';
+import { ThermometerIcon, DropletsIcon, SunIcon, ActivityIcon, SoilHumidityIcon } from './Icons';
 
 interface PlantDetailCardProps {
     plant: PlantProfile;
@@ -42,9 +42,9 @@ export const PlantDetailCard: React.FC<PlantDetailCardProps> = ({ plant }) => {
                         <span className="font-bold text-slate-700">{plant.needs.humidite.min}-{plant.needs.humidite.max}%</span>
                     </div>
 
-                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 flex flex-col items-center min-w-[100px]">
-                        <span className="text-emerald-500 mb-1"><ActivityIcon /></span>
-                        <span className="text-xs text-emerald-400 font-semibold uppercase">Sol</span>
+                    <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex flex-col items-center min-w-[100px]">
+                        <span className="text-stone-500 mb-1"><SoilHumidityIcon /></span>
+                        <span className="text-xs text-stone-400 font-semibold uppercase">Sol</span>
                         <span className="font-bold text-slate-700">{plant.needs.humidite_sol.min}-{plant.needs.humidite_sol.max}%</span>
                     </div>
 

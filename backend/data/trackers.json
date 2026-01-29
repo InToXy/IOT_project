@@ -1,0 +1,23 @@
+[
+  {
+    "id": "default-1",
+    "name": "Ma Première Plante",
+    "sensorId": "1",
+    "greenhouseId": "1",
+    "plantId": "monstera"
+  },
+  {
+    "id": "aa61cbcb-d482-48d0-9a1d-3f8f4e749188",
+    "name": "florent",
+    "sensorId": "2",
+    "greenhouseId": "1",
+    "plantId": "menthe"
+  },
+  {
+    "id": "c0724309-c00a-47fa-94bb-af1f71c8bcb4",
+    "name": "alban",
+    "sensorId": "1",
+    "greenhouseId": "2",
+    "plantId": "basilic"
+  }
+]

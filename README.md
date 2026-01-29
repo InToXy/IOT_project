@@ -46,7 +46,8 @@ Nous avons conçu une architecture distribuée et résiliente, capable de collec
 3.  **Transport (Broker)** : **Mosquitto** avec sécurisation TLS (MQTTS).
 4.  **Traitement (Logic)** : **Node-RED** pour le déchiffrement, le filtrage et le routage.
 5.  **Stockage (Time-Series)** : **InfluxDB** pour l'historisation.
-6.  **Visualisation** : Web App et Grafana.
+6.  **Backend (API)** : **Node.js** pour la persistance centralisée de la configuration (liste des plantes).
+7.  **Visualisation** : Web App et Grafana.
 
 ![Architecture Réseau](images/schema_logique.webp)
 
@@ -102,9 +103,14 @@ L'application web offre une vue synthétique et esthétique.
 ### Base de Données Intelligente
 - Sélection parmi **9 profils de plantes** (Monstera, Cactus, Orchidée...).
 - Seuils d'alerte adaptés automatiquement à chaque espèce.
+- **Persistance Centralisée** : Les configurations sont sauvegardées côté serveur, permettant le partage instantané entre tous les utilisateurs (Mobile/Desktop).
 - **Fiche Détail** : Affichage des besoins spécifiques de la plante sélectionnée.
 
-![Détails Plante](images/interface_web_2.png) 
+![Détails Plante](images/interface_web_2.png)
+
+### Expérience Utilisateur
+- **Illustrations Uniques** : Chaque type de plante possède sa propre illustration vectorielle moderne.
+- **Tableau de Bord Mobile** : Interface totalement responsive avec indicateurs de fraîcheur des données. 
 
 ### Alertes
 - **Visuelles** : Les cartes clignotent en cas de danger critique.
@@ -128,33 +134,29 @@ Pour sécuriser l'accès aux services critiques (Grafana, EcoGuardian Admin, etc
     *   Si connecté mais droits insuffisants -> Demande de MFA (Double Facteur).
     *   Si autorisé -> La requête est transmise au service final.
 
-### Fonctionnalités Implémentées
+### Fonctionnalités
+- **Authentification Unique (SSO)** : Une seule connexion pour accéder à tous les services.
+- **Portail de Connexion** : Interface soignée et simple.
+- **Protection** : Bloque tout accès non autorisé aux applications internes.
 
-#### 1. Authentification Double Facteur (2FA/MFA)
-Pour garantir une sécurité maximale, l'accès au réseau externe est protégé par une **authentification à deux facteurs**.
-- **Facteur 1** : Mot de passe fort (Haché en Argon2id).
-- **Facteur 2** : Code unique temporaire (TOTP) généré par une application mobile (Google Authenticator, Authy...).
-- **Politique** : Accès "two_factor" forcé pour tous les sous-domaines.
+---
 
-#### 2. Gestion des Utilisateurs (File-Based)
-Les utilisateurs sont définis dans un fichier sécurisé (`users_database.yml`) monté dans le conteneur.
-- Pas de base de données externe requise.
-- Hachage des mots de passe via `docker run authelia/authelia authelia crypto hash generate argon2`.
+## 🛠️ Backend & API de Persistance
 
-#### 3. Interface Personnalisée
-L'interface de connexion a été adaptée pour refléter l'identité "EcoGuardian".
-- **Logo** : Intégration du logo du projet (`logo_web.png`) via un montage de volume (`/config/assets`).
-- **Thème** : Light mode par défaut.
+Pour garantir une expérience utilisateur fluide et cohérente sur tous les appareils, EcoGuardian utilise un **backend dédié** en Node.js.
 
-### Guide de Connexion (Premier accès)
-Puisque nous n'avons pas de serveur mail configuré (SMTP), l'enrôlement MFA se fait manuellement via les logs du conteneur.
-1.  Se connecter avec les identifiants initiaux.
-2.  Lors de la demande d'enregistrement 2FA, cliquer sur "Register".
-3.  Récupérer le lien d'activation :
-    ```bash
-    docker exec iot_authelia cat /config/notification.txt
-    ```
-4.  Scanner le QR Code avec votre téléphone.
+### Pourquoi un Backend ?
+Contrairement à une simple application web statique, EcoGuardian a besoin de **"mémoire"**.
+- Si vous ajoutez une plante sur votre PC, vous voulez la voir apparaître sur votre téléphone.
+- Cette configuration (nom de la plante, ID du capteur, type de plante) ne peut pas rester stockée uniquement dans votre navigateur (LocalStorage).
+
+### Fonctionnement Technique
+1.  **Service** : Un conteneur Docker léger (`node:18-alpine`) exécute une API Express sur le port 3001.
+2.  **Stockage** : Les données sont persistées dans un fichier JSON (`trackers.json`) monté via un volume Docker. C'est une solution simple, robuste et facile à sauvegarder pour cette échelle.
+3.  **API REST** :
+    - `GET /api/trackers` : Récupère la liste partagée des plantes.
+    - `POST /api/trackers` : Met à jour la configuration pour tous les utilisateurs.
+4.  **Sécurité** : L'API n'est pas exposée directement sur le web. Elle est accessible uniquement via le Reverse Proxy Traefik, authentifiée par Authelia.
 
 ---
 
@@ -181,6 +183,7 @@ Une fois le `docker-compose up -d` lancé, voici les accès :
 | **EcoGuardian App** | `https://ecoguardian.duckdns.org` | Authelia (2FA) |
 | **Grafana** | `https://ecoguardian.duckdns.org/grafana` | Aucune (Interne) |
 | **InfluxDB** | `https://ecoguardian.duckdns.org:8086` | Token / Login de base |
+| **Backend API** | `https://ecoguardian.duckdns.org/api` | Authelia (2FA) |
 | **Authelia** (IdP) | `https://ecoguardian.duckdns.org/authelia` | - |
 | **Traefik** (Proxy) | Port 80 / 443 | - |
 

@@ -71,7 +71,23 @@ services:
       - "traefik.http.routers.influxdb.rule=Host(`${DOMAIN_NAME}`)"
       - "traefik.http.routers.influxdb.tls.certresolver=myresolver"
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
-
+      - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
+      
+  # --- BACKEND API ---
+  backend:
+    build: ./backend
+    container_name: iot_backend
+    restart: always
+    volumes:
+      - ./backend/data:/app/data
+    labels:
+      - "traefik.enable=true"
+      # Route /api -> Backend
+      - "traefik.http.routers.backend.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.http.routers.backend.middlewares=authelia"
+      - "traefik.http.services.backend.loadbalancer.server.port=3001"
   # --- WEB APP (EcoGuardian) ---
   ecoguardian:
     build: ./ecoguardian-plant-monitor

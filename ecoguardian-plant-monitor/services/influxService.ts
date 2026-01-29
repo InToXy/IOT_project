@@ -40,7 +40,14 @@ export const generateMockData = (count: number = 20): PlantData[] => {
   return data;
 };
 
-export const fetchPlantDataFromInflux = async (config: InfluxConfig, plantId?: string, greenhouseId?: string): Promise<PlantData[]> => {
+export const fetchPlantDataFromInflux = async (
+  config: InfluxConfig,
+  plantId?: string,
+  greenhouseId?: string,
+  timeRange: string = "-24h",
+  customStart?: string,
+  customStop?: string
+): Promise<PlantData[]> => {
   const influxDB = new InfluxDB({ url: config.url, token: config.token });
   const queryApi = influxDB.getQueryApi(config.org);
 
@@ -53,10 +60,23 @@ export const fetchPlantDataFromInflux = async (config: InfluxConfig, plantId?: s
     filterString += ` |> filter(fn: (r) => r["id_serre"] == "${greenhouseId}")`;
   }
 
+  // Determine aggregation window based on time range
+  let aggregateWindow = "";
+  if (timeRange === "-7d") {
+    aggregateWindow = `|> aggregateWindow(every: 1d, fn: mean, createEmpty: false)`;
+  } else if (timeRange === "-24h") {
+    aggregateWindow = `|> aggregateWindow(every: 1h, fn: mean, createEmpty: false)`;
+  } else {
+    // For 1h or other short ranges, no aggregation or very fine aggregation
+    // aggregateWindow = `|> aggregateWindow(every: 1m, fn: mean, createEmpty: false)`;
+    aggregateWindow = ""; // Raw data for last hour
+  }
+
   const fluxQuery = `
     from(bucket: "${config.bucket}")
-      |> range(start: -24h)
+      |> range(start: ${customStart ? customStart : timeRange}${customStop ? `, stop: ${customStop}` : ''})
       ${filterString}
+      ${aggregateWindow}
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
       |> sort(columns: ["_time"])
   `;

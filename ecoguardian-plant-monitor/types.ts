@@ -46,3 +46,11 @@ export interface PlantProfile {
   }
   imagePath: string;
 }
+
+export interface Tracker {
+  id: string; // Unique ID for the tracker entry (uuid)
+  name: string;
+  sensorId: string;
+  greenhouseId: string;
+  plantId: string; // The ID of the plant type (e.g., 'monstera')
+}

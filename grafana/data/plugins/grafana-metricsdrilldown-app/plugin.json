@@ -8,7 +8,8 @@
         "plugins": [],
         "extensions": {
             "exposedComponents": [
-                "grafana/add-to-dashboard-form/v1"
+                "grafana/add-to-dashboard-form/v1",
+                "grafana/alerting/create-alert-from-panel/v1"
             ]
         }
     },
@@ -43,8 +44,8 @@
                 "path": "img/breakdown.png"
             }
         ],
-        "version": "1.0.28",
-        "updated": "2026-01-14",
+        "version": "1.0.29",
+        "updated": "2026-01-28",
         "links": [
             {
                 "name": "GitHub",
