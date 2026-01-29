@@ -6388,3 +6388,54 @@
 1769525962: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1769527763: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1769529564: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769675526: mosquitto version 2.0.22 starting
+1769675526: Config loaded from /mosquitto/config/mosquitto.conf.
+1769675526: Opening ipv4 listen socket on port 1883.
+1769675526: Opening ipv6 listen socket on port 1883.
+1769675526: Opening websockets listen socket on port 9001.
+1769675526: Opening ipv4 listen socket on port 8883.
+1769675526: Opening ipv6 listen socket on port 8883.
+1769675526: mosquitto version 2.0.22 running
+1769675527: New connection from 192.168.107.3:56558 on port 8883.
+1769675527: New client connected from 192.168.107.3:56558 as nodered129317c3e0981eca (p2, c1, k60).
+1769675651: Client nodered129317c3e0981eca disconnected.
+1769675651: New connection from 192.168.107.3:37184 on port 8883.
+1769675651: New client connected from 192.168.107.3:37184 as nodereda01cdbdd10091eb3 (p2, c1, k60).
+1769677326: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769679095: Client nodereda01cdbdd10091eb3 disconnected.
+1769679095: New connection from 192.168.107.3:50930 on port 8883.
+1769679095: New client connected from 192.168.107.3:50930 as nodered3c59a93178a2fc82 (p2, c1, k60).
+1769679127: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769680928: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769682729: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769684530: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769686331: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769688132: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769689933: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769691734: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769693535: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769695336: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769697137: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769698421: Client nodered3c59a93178a2fc82 disconnected.
+1769698421: New connection from 192.168.107.3:40066 on port 8883.
+1769698421: New client connected from 192.168.107.3:40066 as nodered5ee35a5a6f26670f (p2, c1, k60).
+1769698534: Client nodered5ee35a5a6f26670f disconnected.
+1769698534: New connection from 192.168.107.3:35268 on port 8883.
+1769698534: New client connected from 192.168.107.3:35268 as nodered828c4cd2532a1b13 (p2, c1, k60).
+1769698900: Client nodered828c4cd2532a1b13 disconnected.
+1769698900: New connection from 192.168.107.3:58938 on port 8883.
+1769698900: New client connected from 192.168.107.3:58938 as nodered0da8ca6ce12a451b (p2, c1, k60).
+1769698938: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769699188: Client nodered0da8ca6ce12a451b disconnected.
+1769699188: New connection from 192.168.107.3:37574 on port 8883.
+1769699188: New client connected from 192.168.107.3:37574 as noderedf589c3c02d883483 (p2, c1, k60).
+1769699327: Client noderedf589c3c02d883483 disconnected.
+1769699327: New connection from 192.168.107.3:37778 on port 8883.
+1769699327: New client connected from 192.168.107.3:37778 as nodered69ae3982eec8f417 (p2, c1, k60).
+1769699445: Client nodered69ae3982eec8f417 disconnected.
+1769699445: New connection from 192.168.107.3:33024 on port 8883.
+1769699445: New client connected from 192.168.107.3:33024 as noderedc1ae4d1ddaf20142 (p2, c1, k60).
+1769700739: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769700975: Client noderedc1ae4d1ddaf20142 disconnected.
+1769700975: mosquitto version 2.0.22 terminating
+1769700975: Saving in-memory database to /mosquitto/data//mosquitto.db.

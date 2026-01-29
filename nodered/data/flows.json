@@ -2,9 +2,17 @@
     {
         "id": "f6f2187d.f17ca8",
         "type": "tab",
-        "label": "Test Plante",
+        "label": "Stack with cache db ",
         "disabled": false,
         "info": ""
+    },
+    {
+        "id": "8297e42b598ceea6",
+        "type": "tab",
+        "label": "Original Stack",
+        "disabled": false,
+        "info": "",
+        "env": []
     },
     {
         "id": "tls_config_local",
@@ -65,132 +73,16 @@
         "sessionExpiry": ""
     },
     {
-        "id": "d0ec322ab6d8e2bf",
-        "type": "mqtt in",
-        "z": "f6f2187d.f17ca8",
-        "name": "LoRa Wildcard",
-        "topic": "serre/+/plante/+/data",
-        "qos": "1",
-        "datatype": "json",
-        "broker": "mosquitto_local",
-        "nl": false,
-        "rap": false,
-        "inputs": 0,
-        "x": 460,
-        "y": 580,
-        "wires": [
-            [
-                "6deb441b1636fbca"
-            ]
-        ]
-    },
-    {
-        "id": "6deb441b1636fbca",
-        "type": "function",
-        "z": "f6f2187d.f17ca8",
-        "name": "Normalisation Data",
-        "func": "// Topic attendu : serre/ID_SERRE/plante/ID_PLANTE/data\n// Payload attendu : { \"encrypted\": \"...\", \"idp\": 1, \"ids\": 2 ... }\n\nlet data = msg.payload;\n\n// Sécurité JSON\nif (typeof data === 'string') {\n    try {\n        data = JSON.parse(data);\n    } catch(e) {\n        node.error(\"JSON invalide\");\n        return null;\n    }\n}\n\n// Construction du message propre\nmsg.payload = {\n    encrypted: data.encrypted || \"\",\n    id_plante: data.idp || 0,\n    id_serre:  data.ids || 0,\n    rssi:      data.rssi || 0,\n    timestamp: data.ts || Math.floor(Date.now() / 1000),\n    topic_complet: msg.topic\n};\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 670,
-        "y": 580,
-        "wires": [
-            [
-                "d2851a303273414d"
-            ]
-        ]
-    },
-    {
-        "id": "d2851a303273414d",
-        "type": "function",
-        "z": "f6f2187d.f17ca8",
-        "name": "Déchiffrer XTEA",
-        "func": "// ========== CLE XTEA ==========\n// VERIFIEZ QUE CETTE CLE EST IDENTIQUE A L'ARDUINO\nconst XTEA_KEY = [0xA1B2C3D4, 0xE5F67890, 0x1A2B3C4D, 0x5E6F7809];\n\n// ========== ALGORYTHME ==========\nfunction xteaDec(v) {\n    let v0 = v[0], v1 = v[1];\n    const delta = 0x9E3779B9;\n    let sum = delta * 32;\n    \n    for (let i = 0; i < 32; i++) {\n        v1 -= (((v0 << 4) ^ (v0 >>> 5)) + v0) ^ (sum + XTEA_KEY[(sum >>> 11) & 3]);\n        v1 = v1 >>> 0;\n        sum -= delta;\n        sum = sum >>> 0;\n        v0 -= (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (sum + XTEA_KEY[sum & 3]);\n        v0 = v0 >>> 0;\n    }\n    return [v0, v1];\n}\n\nfunction decryptMessage(hex) {\n    if (!hex || typeof hex !== 'string') return \"\";\n    let out = \"\";\n    \n    for (let i = 0; i < hex.length; i += 16) {\n        let sub = hex.substring(i, i + 16);\n        if (sub.length < 16) break;\n        \n        let b = [\n            parseInt(sub.substring(0, 8), 16),\n            parseInt(sub.substring(8, 16), 16)\n        ];\n        \n        b = xteaDec(b);\n        \n        // Conversion en caractères\n        for (let k = 0; k < 2; k++) {\n            for (let j = 0; j < 4; j++) {\n                let byte = (b[k] >>> (j * 8)) & 0xFF;\n                if (byte !== 0) out += String.fromCharCode(byte);\n            }\n        }\n    }\n    return out.trim();\n}\n\nfunction extractValue(data, key) {\n    if (!data) return null;\n    const s = data.indexOf(key);\n    if (s === -1) return null;\n    const start = s + key.length;\n    let end = data.indexOf(';', start);\n    if (end === -1) end = data.length;\n    return data.substring(start, end);\n}\n\n// ========== EXECUTION ==========\ntry {\n    const decrypted = decryptMessage(msg.payload.encrypted);\n    \n    msg.payload.decrypted_raw = decrypted;\n    msg.payload.temperature = parseFloat(extractValue(decrypted, \"T=\"));\n    msg.payload.humidite = parseFloat(extractValue(decrypted, \"H=\"));\n    msg.payload.sol = parseInt(extractValue(decrypted, \"S=\"));\n    msg.payload.lumiere = parseInt(extractValue(decrypted, \"L=\"));\n\n    // Vérification basique\n    msg.payload.success = !isNaN(msg.payload.temperature);\n    \n    // Nettoyage\n    delete msg.payload.encrypted;\n    \n    return msg;\n} catch (e) {\n    node.error(\"Erreur XTEA: \" + e.message);\n    return null;\n}",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 900,
-        "y": 580,
-        "wires": [
-            [
-                "9c981c7a427ea5a2"
-            ]
-        ]
-    },
-    {
-        "id": "9c981c7a427ea5a2",
-        "type": "function",
-        "z": "f6f2187d.f17ca8",
-        "name": "Formatage pour InfluxDB",
-        "func": "// Récupération des données du simulateur (ou du déchiffreur)\nconst d = msg.payload;\n\n// 1. Sécurité : Vérification de la validité des données\nif (!d || d.success === false) {\n    node.warn(\"Données invalides ou échec de déchiffrement\");\n    return null;\n}\n\n// 2. Formatage pour InfluxDB (Structure compatible avec le nœud Influx Out)\n// Le nœud InfluxDB attend souvent un tableau de deux éléments : [fields, tags]\nmsg.payload = [\n    {\n        temperature: parseFloat(d.temperature),\n        humidite: parseFloat(d.humidite),\n        luminosite: parseInt(d.lumiere),\n        humidite_sol: parseInt(d.sol),\n        rssi: parseInt(d.rssi) || 0\n    },\n    {\n        id_plante: String(d.id_plante),\n        id_serre: String(d.id_serre),\n        location: \"maison\"\n    }\n];\n\n// 3. Métadonnées du point\nmsg.measurement = \"monitor_plante\";\n\n// Optionnel : Forcer le timestamp si vous voulez utiliser celui du simulateur\nif (d.timestamp) {\n    msg.timestamp = d.timestamp * 1000; // Conversion secondes vers millisecondes\n}\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 1150,
-        "y": 580,
-        "wires": [
-            [
-                "318513acef039fc9",
-                "fc849d93ea845daa"
-            ]
-        ]
-    },
-    {
-        "id": "fc849d93ea845daa",
-        "type": "influxdb out",
-        "z": "f6f2187d.f17ca8",
-        "influxdb": "influx_conf",
-        "name": "Envoi InfluxDB",
-        "measurement": "",
-        "precision": "",
-        "retentionPolicy": "",
-        "database": "database",
-        "precisionV18FluxV20": "s",
-        "retentionPolicyV18Flux": "",
-        "org": "maison",
-        "bucket": "plante_data",
-        "x": 1420,
-        "y": 580,
-        "wires": []
-    },
-    {
-        "id": "318513acef039fc9",
-        "type": "debug",
-        "z": "f6f2187d.f17ca8",
-        "name": "Check Influx",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1420,
-        "y": 500,
-        "wires": []
-    },
-    {
         "id": "simu_inject",
         "type": "inject",
         "z": "f6f2187d.f17ca8",
-        "name": "Toutes les 5s",
+        "name": "Toutes les 1min",
         "props": [
             {
                 "p": "payload"
             }
         ],
-        "repeat": "120",
+        "repeat": "60",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
@@ -210,7 +102,7 @@
         "type": "function",
         "z": "f6f2187d.f17ca8",
         "name": "Simulateur Capteurs",
-        "func": "// === CONFIGURATION ===\nconst serres = [1, 2];\nconst plantes = [1, 2, 3];\n\nfunction getRandom(min, max) {\n    return Math.random() * (max - min) + min;\n}\n\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nconst ids = serres[Math.floor(Math.random() * serres.length)];\nconst idp = plantes[Math.floor(Math.random() * plantes.length)];\n\nmsg.payload = {\n    success: true,\n    id_serre: ids,\n    id_plante: idp,\n    temperature: getRandom(18, 30).toFixed(1),\n    humidite: getRandomInt(30, 80),\n    lumiere: getRandomInt(0, 1023),\n    sol: getRandomInt(200, 900),\n    rssi: getRandomInt(-90, -40),\n    timestamp: Math.floor(Date.now() / 1000)\n};\n\nmsg.topic = `serre/${ids}/plante/${idp}/data`;\n\nreturn msg;",
+        "func": "// === CONFIGURATION ===\nconst serres = [1, 2];\nconst plantes = [1, 2, 3, 4, 5];\n\nfunction getRandom(min, max) {\n    return Math.random() * (max - min) + min;\n}\n\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nconst ids = serres[Math.floor(Math.random() * serres.length)];\nconst idp = plantes[Math.floor(Math.random() * plantes.length)];\n\nmsg.payload = {\n    success: true,\n    id_serre: ids,\n    id_plante: idp,\n    temperature: getRandom(18, 30).toFixed(1),\n    humidite: getRandomInt(30, 80),\n    lumiere: getRandomInt(0, 1023),\n    sol: getRandomInt(200, 900),\n    rssi: getRandomInt(-90, -40),\n    timestamp: Math.floor(Date.now() / 1000)\n};\n\nmsg.topic = `serre/${ids}/plante/${idp}/data`;\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -220,7 +112,289 @@
         "x": 520,
         "y": 200,
         "wires": [
+            [
+                "aa5d7d1f5e5929ed"
+            ]
+        ]
+    },
+    {
+        "id": "439575746e181bce",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "LoRa Wildcard",
+        "topic": "serre/+/plante/+/data",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "mosquitto_local",
+        "inputs": 0,
+        "x": 80,
+        "y": 320,
+        "wires": [
+            [
+                "69e0a953dfc0bae9"
+            ]
+        ]
+    },
+    {
+        "id": "69e0a953dfc0bae9",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Normalisation Data",
+        "func": "let data = msg.payload;\nif (typeof data === 'string') {\n    try { data = JSON.parse(data); } \n    catch(e) { return null; }\n}\nmsg.payload = {\n    encrypted: data.encrypted || \"\",\n    id_plante: data.idp || 0,\n    id_serre:  data.ids || 0,\n    rssi:      data.rssi || 0,\n    timestamp: data.ts || Math.floor(Date.now() / 1000),\n    topic_complet: msg.topic\n};\nreturn msg;",
+        "outputs": 1,
+        "x": 290,
+        "y": 320,
+        "wires": [
+            [
+                "af882833c275db38"
+            ]
+        ]
+    },
+    {
+        "id": "af882833c275db38",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Déchiffrer XTEA",
+        "func": "const XTEA_KEY = [0xA1B2C3D4, 0xE5F67890, 0x1A2B3C4D, 0x5E6F7809];\n\nfunction xteaDec(v) {\n    let v0 = v[0], v1 = v[1];\n    const delta = 0x9E3779B9;\n    let sum = delta * 32;\n    for (let i = 0; i < 32; i++) {\n        v1 -= (((v0 << 4) ^ (v0 >>> 5)) + v0) ^ (sum + XTEA_KEY[(sum >>> 11) & 3]);\n        v1 = v1 >>> 0; sum -= delta; sum = sum >>> 0;\n        v0 -= (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (sum + XTEA_KEY[sum & 3]);\n        v0 = v0 >>> 0;\n    }\n    return [v0, v1];\n}\n\nfunction decryptMessage(hex) {\n    if (!hex) return \"\";\n    let out = \"\";\n    for (let i = 0; i < hex.length; i += 16) {\n        let sub = hex.substring(i, i + 16);\n        if (sub.length < 16) break;\n        let b = [parseInt(sub.substring(0, 8), 16), parseInt(sub.substring(8, 16), 16)];\n        b = xteaDec(b);\n        for (let k = 0; k < 2; k++) {\n            for (let j = 0; j < 4; j++) {\n                let byte = (b[k] >>> (j * 8)) & 0xFF;\n                if (byte !== 0) out += String.fromCharCode(byte);\n            }\n        }\n    }\n    return out.trim();\n}\n\nfunction extractValue(data, key) {\n    const s = data.indexOf(key);\n    if (s === -1) return null;\n    const start = s + key.length;\n    let end = data.indexOf(';', start);\n    if (end === -1) end = data.length;\n    return data.substring(start, end);\n}\n\ntry {\n    const decrypted = decryptMessage(msg.payload.encrypted);\n    msg.payload.temperature = parseFloat(extractValue(decrypted, \"T=\"));\n    msg.payload.humidite = parseFloat(extractValue(decrypted, \"H=\"));\n    msg.payload.sol = parseInt(extractValue(decrypted, \"S=\"));\n    msg.payload.lumiere = parseInt(extractValue(decrypted, \"L=\"));\n    msg.payload.success = !isNaN(msg.payload.temperature);\n    delete msg.payload.encrypted;\n    return msg;\n} catch (e) { return null; }",
+        "outputs": 1,
+        "x": 500,
+        "y": 320,
+        "wires": [
+            [
+                "aa5d7d1f5e5929ed"
+            ]
+        ]
+    },
+    {
+        "id": "aa5d7d1f5e5929ed",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Formatage & Gestion Cache",
+        "func": "let cache = context.get('db_cache') || [];\n\n// Si trigger par le répétiteur (retry)\nif (msg.topic === \"retry_cache\") {\n    if (cache.length > 0) {\n        let retryMsg = cache.shift();\n        context.set('db_cache', cache);\n        node.status({fill:\"yellow\", shape:\"dot\", text: \"Retry: \" + cache.length + \" restants\"});\n        return retryMsg;\n    }\n    node.status({fill:\"green\", shape:\"ring\", text: \"Cache vide\"});\n    return null;\n}\n\n// Formatage InfluxDB standard\nconst d = msg.payload;\nif (!d || d.success === false) return null;\n\nmsg.payload = [\n    {\n        temperature: parseFloat(d.temperature),\n        humidite: parseFloat(d.humidite),\n        luminosite: parseInt(d.lumiere),\n        humidite_sol: parseInt(d.sol),\n        rssi: parseInt(d.rssi) || 0\n    },\n    {\n        id_plante: String(d.id_plante),\n        id_serre: String(d.id_serre),\n        location: \"maison\"\n    }\n];\nmsg.measurement = \"monitor_plante\";\nif (d.timestamp) msg.timestamp = d.timestamp * 1000;\n\nnode.status({fill:\"blue\", shape:\"dot\", text: \"Envoi direct\"});\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 320,
+        "wires": [
+            [
+                "52b073bc90e401c3",
+                "ea662e8d1b833503"
+            ]
+        ]
+    },
+    {
+        "id": "52b073bc90e401c3",
+        "type": "influxdb out",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "influx_conf",
+        "name": "Envoi InfluxDB",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "maison",
+        "bucket": "plante_data",
+        "x": 1040,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c2dffd8347536612",
+        "type": "catch",
+        "z": "f6f2187d.f17ca8",
+        "name": "Capture Erreur DB",
+        "scope": [
+            "52b073bc90e401c3"
+        ],
+        "uncaught": false,
+        "x": 770,
+        "y": 400,
+        "wires": [
+            [
+                "eb13c7836dbdd2ea"
+            ]
+        ]
+    },
+    {
+        "id": "eb13c7836dbdd2ea",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Mettre en Cache",
+        "func": "let cache = context.get('db_cache') || [];\n// On garde le message complet pour le renvoyer plus tard\ncache.push(msg);\n// Limite de sécurité pour éviter de saturer la RAM (ex: 1000 points)\nif (cache.length > 1000) cache.shift();\n\ncontext.set('db_cache', cache);\nnode.status({fill:\"red\", shape:\"dot\", text: \"Stocké: \" + cache.length});\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 400,
+        "wires": [
             []
         ]
+    },
+    {
+        "id": "187baf79df96adb3",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "Vérif Cache 20s",
+        "props": [
+            {
+                "p": "topic",
+                "v": "retry_cache",
+                "vt": "str"
+            }
+        ],
+        "repeat": "20",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "retry_cache",
+        "x": 490,
+        "y": 400,
+        "wires": [
+            [
+                "aa5d7d1f5e5929ed"
+            ]
+        ]
+    },
+    {
+        "id": "ea662e8d1b833503",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "Check Influx",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1050,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "f06c266df82863b2",
+        "type": "mqtt in",
+        "z": "8297e42b598ceea6",
+        "name": "LoRa Wildcard",
+        "topic": "serre/+/plante/+/data",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "mosquitto_local",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 220,
+        "y": 420,
+        "wires": [
+            [
+                "15e4d8b67b53b931"
+            ]
+        ]
+    },
+    {
+        "id": "15e4d8b67b53b931",
+        "type": "function",
+        "z": "8297e42b598ceea6",
+        "name": "Normalisation Data",
+        "func": "// Topic attendu : serre/ID_SERRE/plante/ID_PLANTE/data\n// Payload attendu : { \"encrypted\": \"...\", \"idp\": 1, \"ids\": 2 ... }\n\nlet data = msg.payload;\n\n// Sécurité JSON\nif (typeof data === 'string') {\n    try {\n        data = JSON.parse(data);\n    } catch(e) {\n        node.error(\"JSON invalide\");\n        return null;\n    }\n}\n\n// Construction du message propre\nmsg.payload = {\n    encrypted: data.encrypted || \"\",\n    id_plante: data.idp || 0,\n    id_serre:  data.ids || 0,\n    rssi:      data.rssi || 0,\n    timestamp: data.ts || Math.floor(Date.now() / 1000),\n    topic_complet: msg.topic\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 420,
+        "wires": [
+            [
+                "d1db4bd1a81548c3"
+            ]
+        ]
+    },
+    {
+        "id": "d1db4bd1a81548c3",
+        "type": "function",
+        "z": "8297e42b598ceea6",
+        "name": "Déchiffrer XTEA",
+        "func": "// ========== CLE XTEA ==========\n// VERIFIEZ QUE CETTE CLE EST IDENTIQUE A L'ARDUINO\nconst XTEA_KEY = [0xA1B2C3D4, 0xE5F67890, 0x1A2B3C4D, 0x5E6F7809];\n\n// ========== ALGORYTHME ==========\nfunction xteaDec(v) {\n    let v0 = v[0], v1 = v[1];\n    const delta = 0x9E3779B9;\n    let sum = delta * 32;\n    \n    for (let i = 0; i < 32; i++) {\n        v1 -= (((v0 << 4) ^ (v0 >>> 5)) + v0) ^ (sum + XTEA_KEY[(sum >>> 11) & 3]);\n        v1 = v1 >>> 0;\n        sum -= delta;\n        sum = sum >>> 0;\n        v0 -= (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (sum + XTEA_KEY[sum & 3]);\n        v0 = v0 >>> 0;\n    }\n    return [v0, v1];\n}\n\nfunction decryptMessage(hex) {\n    if (!hex || typeof hex !== 'string') return \"\";\n    let out = \"\";\n    \n    for (let i = 0; i < hex.length; i += 16) {\n        let sub = hex.substring(i, i + 16);\n        if (sub.length < 16) break;\n        \n        let b = [\n            parseInt(sub.substring(0, 8), 16),\n            parseInt(sub.substring(8, 16), 16)\n        ];\n        \n        b = xteaDec(b);\n        \n        // Conversion en caractères\n        for (let k = 0; k < 2; k++) {\n            for (let j = 0; j < 4; j++) {\n                let byte = (b[k] >>> (j * 8)) & 0xFF;\n                if (byte !== 0) out += String.fromCharCode(byte);\n            }\n        }\n    }\n    return out.trim();\n}\n\nfunction extractValue(data, key) {\n    if (!data) return null;\n    const s = data.indexOf(key);\n    if (s === -1) return null;\n    const start = s + key.length;\n    let end = data.indexOf(';', start);\n    if (end === -1) end = data.length;\n    return data.substring(start, end);\n}\n\n// ========== EXECUTION ==========\ntry {\n    const decrypted = decryptMessage(msg.payload.encrypted);\n    \n    msg.payload.decrypted_raw = decrypted;\n    msg.payload.temperature = parseFloat(extractValue(decrypted, \"T=\"));\n    msg.payload.humidite = parseFloat(extractValue(decrypted, \"H=\"));\n    msg.payload.sol = parseInt(extractValue(decrypted, \"S=\"));\n    msg.payload.lumiere = parseInt(extractValue(decrypted, \"L=\"));\n\n    // Vérification basique\n    msg.payload.success = !isNaN(msg.payload.temperature);\n    \n    // Nettoyage\n    delete msg.payload.encrypted;\n    \n    return msg;\n} catch (e) {\n    node.error(\"Erreur XTEA: \" + e.message);\n    return null;\n}",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 420,
+        "wires": [
+            [
+                "7644688b9da8d18a"
+            ]
+        ]
+    },
+    {
+        "id": "7644688b9da8d18a",
+        "type": "function",
+        "z": "8297e42b598ceea6",
+        "name": "Formatage pour InfluxDB",
+        "func": "// Récupération des données du simulateur (ou du déchiffreur)\nconst d = msg.payload;\n\n// 1. Sécurité : Vérification de la validité des données\nif (!d || d.success === false) {\n    node.warn(\"Données invalides ou échec de déchiffrement\");\n    return null;\n}\n\n// 2. Formatage pour InfluxDB (Structure compatible avec le nœud Influx Out)\n// Le nœud InfluxDB attend souvent un tableau de deux éléments : [fields, tags]\nmsg.payload = [\n    {\n        temperature: parseFloat(d.temperature),\n        humidite: parseFloat(d.humidite),\n        luminosite: parseInt(d.lumiere),\n        humidite_sol: parseInt(d.sol),\n        rssi: parseInt(d.rssi) || 0\n    },\n    {\n        id_plante: String(d.id_plante),\n        id_serre: String(d.id_serre),\n        location: \"maison\"\n    }\n];\n\n// 3. Métadonnées du point\nmsg.measurement = \"monitor_plante\";\n\n// Optionnel : Forcer le timestamp si vous voulez utiliser celui du simulateur\nif (d.timestamp) {\n    msg.timestamp = d.timestamp * 1000; // Conversion secondes vers millisecondes\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 420,
+        "wires": [
+            [
+                "eb0e6397571595a2",
+                "c468c8d34593f6ce"
+            ]
+        ]
+    },
+    {
+        "id": "c468c8d34593f6ce",
+        "type": "influxdb out",
+        "z": "8297e42b598ceea6",
+        "influxdb": "influx_conf",
+        "name": "Envoi InfluxDB",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "s",
+        "retentionPolicyV18Flux": "",
+        "org": "maison",
+        "bucket": "plante_data",
+        "x": 1180,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "eb0e6397571595a2",
+        "type": "debug",
+        "z": "8297e42b598ceea6",
+        "name": "Check Influx",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1180,
+        "y": 340,
+        "wires": []
     }
 ]
