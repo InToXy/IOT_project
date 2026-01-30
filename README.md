@@ -141,6 +141,30 @@ Pour sécuriser l'accès aux services critiques (Grafana, EcoGuardian Admin, etc
 
 ---
 
+## 🚔 Sécurité & Anti-Intrusion : CrowdSec
+
+Pour protéger l'infrastructure contre les attaques automatisées (Brute Force, Scanners, Bots), nous avons intégré **CrowdSec**, un IPS (Intrusion Prevention System) collaboratif.
+
+### Architecture de Défense
+Le système repose sur deux composants qui dialoguent en permanence :
+
+1.  **CrowdSec Agent (Le Détective)** :
+    - Il analyse en temps réel les logs d'accès de **Traefik**.
+    - Il détecte les comportements suspects (tentatives de connexion répétées, scan de vulnérabilités, user-agents malveillants).
+    - Si une menace est confirmée, il prend une "Décision" (Ban IP pour 4h).
+
+2.  **Traefik Bouncer (Le Videur)** :
+    - C'est un middleware intégré directement dans le reverse proxy.
+    - Pour **chaque requête** HTTPS entrante, il interroge l'agent CrowdSec via une API interne.
+    - Si l'IP est bannie, la requête est immédiatement rejetée avec une erreur **403 Forbidden**, avant même d'atteindre vos applications.
+
+### Capacités
+- **Intelligence Collective** : Votre serveur partage anonymement les IPs agressives avec la communauté CrowdSec, et récupère en échange une liste noire mondiale mise à jour en temps réel.
+- **Protection Transversale** : Une attaque détectée sur un service (ex: tentative de login admin) bloque l'attaquant sur **tous** les services exposés.
+
+---
+
+
 ## 🛠️ Backend & API de Persistance
 
 Pour garantir une expérience utilisateur fluide et cohérente sur tous les appareils, EcoGuardian utilise un **backend dédié** en Node.js.
@@ -186,6 +210,7 @@ Une fois le `docker-compose up -d` lancé, voici les accès :
 | **Backend API** | `https://ecoguardian.duckdns.org/api` | Authelia (2FA) |
 | **Authelia** (IdP) | `https://ecoguardian.duckdns.org/authelia` | - |
 | **Traefik** (Proxy) | Port 80 / 443 | - |
+| **CrowdSec** (Sécurité) | Interne | - |
 
 ---
 

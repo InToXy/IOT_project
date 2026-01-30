@@ -14,3 +14,8 @@ wokwi.toml
 influxdb/data/
 traefik/letsencrypt/
 duckdns/config/
+
+# CrowdSec & Logs
+crowdsec/data/
+crowdsec/config/hub/
+traefik/logs/
