@@ -102,7 +102,7 @@
         "type": "function",
         "z": "f6f2187d.f17ca8",
         "name": "Simulateur Capteurs",
-        "func": "// === CONFIGURATION ===\nconst serres = [1, 2];\nconst plantes = [1, 2, 3];\n\nfunction getRandom(min, max) {\n    return Math.random() * (max - min) + min;\n}\n\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nconst ids = serres[Math.floor(Math.random() * serres.length)];\nconst idp = plantes[Math.floor(Math.random() * plantes.length)];\n\nmsg.payload = {\n    success: true,\n    id_serre: ids,\n    id_plante: idp,\n    temperature: getRandom(18, 30).toFixed(1),\n    humidite: getRandomInt(30, 80),\n    lumiere: getRandomInt(0, 1023),\n    sol: getRandomInt(200, 900),\n    rssi: getRandomInt(-90, -40),\n    timestamp: Math.floor(Date.now() / 1000)\n};\n\nmsg.topic = `serre/${ids}/plante/${idp}/data`;\n\nreturn msg;",
+        "func": "// === CONFIGURATION ===\nconst serres = [1, 2];\nconst plantes = [1, 2, 3, 4, 5];\n\nfunction getRandom(min, max) {\n    return Math.random() * (max - min) + min;\n}\n\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nconst ids = serres[Math.floor(Math.random() * serres.length)];\nconst idp = plantes[Math.floor(Math.random() * plantes.length)];\n\nmsg.payload = {\n    success: true,\n    id_serre: ids,\n    id_plante: idp,\n    temperature: getRandom(18, 30).toFixed(1),\n    humidite: getRandomInt(30, 80),\n    lumiere: getRandomInt(0, 1023),\n    sol: getRandomInt(200, 900),\n    rssi: getRandomInt(-90, -40),\n    timestamp: Math.floor(Date.now() / 1000)\n};\n\nmsg.topic = `serre/${ids}/plante/${idp}/data`;\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -396,5 +396,50 @@
         "x": 1180,
         "y": 340,
         "wires": []
+    },
+    {
+        "id": "cbf0e2267de9921e",
+        "type": "inject",
+        "z": "8297e42b598ceea6",
+        "name": "Toutes les 1min",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 560,
+        "y": 220,
+        "wires": [
+            [
+                "1255c4f8bc630a0b"
+            ]
+        ]
+    },
+    {
+        "id": "1255c4f8bc630a0b",
+        "type": "function",
+        "z": "8297e42b598ceea6",
+        "name": "Simulateur Capteurs",
+        "func": "// === CONFIGURATION ===\nconst serres = [1, 2];\nconst plantes = [1, 2, 3, 4, 5];\n\nfunction getRandom(min, max) {\n    return Math.random() * (max - min) + min;\n}\n\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nconst ids = serres[Math.floor(Math.random() * serres.length)];\nconst idp = plantes[Math.floor(Math.random() * plantes.length)];\n\nmsg.payload = {\n    success: true,\n    id_serre: ids,\n    id_plante: idp,\n    temperature: getRandom(18, 30).toFixed(1),\n    humidite: getRandomInt(30, 80),\n    lumiere: getRandomInt(0, 1023),\n    sol: getRandomInt(200, 900),\n    rssi: getRandomInt(-90, -40),\n    timestamp: Math.floor(Date.now() / 1000)\n};\n\nmsg.topic = `serre/${ids}/plante/${idp}/data`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 220,
+        "wires": [
+            [
+                "7644688b9da8d18a"
+            ]
+        ]
     }
 ]

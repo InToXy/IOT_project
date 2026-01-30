@@ -6439,3 +6439,22 @@
 1769700975: Client noderedc1ae4d1ddaf20142 disconnected.
 1769700975: mosquitto version 2.0.22 terminating
 1769700975: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1769762771: mosquitto version 2.0.22 starting
+1769762771: Config loaded from /mosquitto/config/mosquitto.conf.
+1769762771: Opening ipv4 listen socket on port 1883.
+1769762771: Opening ipv6 listen socket on port 1883.
+1769762771: Opening websockets listen socket on port 9001.
+1769762771: Opening ipv4 listen socket on port 8883.
+1769762771: Opening ipv6 listen socket on port 8883.
+1769762771: mosquitto version 2.0.22 running
+1769762772: New connection from 192.168.107.3:36806 on port 8883.
+1769762772: New client connected from 192.168.107.3:36806 as nodereda9213e1c7b775623 (p2, c1, k60).
+1769762824: Client nodereda9213e1c7b775623 disconnected.
+1769762824: New connection from 192.168.107.3:34944 on port 8883.
+1769762824: New client connected from 192.168.107.3:34944 as noderedee805934ddc499f7 (p2, c1, k60).
+1769763063: Client noderedee805934ddc499f7 disconnected.
+1769763067: New connection from 192.168.107.3:35274 on port 8883.
+1769763067: New client connected from 192.168.107.3:35274 as nodered4a7a4b4897a7abf2 (p2, c1, k60).
+1769763158: Client nodered4a7a4b4897a7abf2 disconnected.
+1769763158: New connection from 192.168.107.3:35716 on port 8883.
+1769763158: New client connected from 192.168.107.3:35716 as noderede206bcddfcff0c5a (p2, c1, k60).
