@@ -5,6 +5,7 @@ import { TrackerList } from './components/TrackerList';
 import { Dashboard } from './components/Dashboard';
 import { usePlantMonitor } from './hooks/usePlantMonitor';
 import { fetchTrackers, saveTrackers } from './services/api';
+import { logger } from './services/LogService';
 
 function App() {
   // --- STATE ---
@@ -18,10 +19,12 @@ function App() {
 
   // Load trackers from API on mount
   useEffect(() => {
+    logger.info('Application started');
     const load = async () => {
       const savedTrackers = await fetchTrackers();
       if (savedTrackers && savedTrackers.length > 0) {
         setTrackers(savedTrackers);
+        logger.info(`Loaded ${savedTrackers.length} trackers`);
       } else {
         // Default initial tracker if empty
         const defaultTracker: Tracker = {
@@ -33,6 +36,7 @@ function App() {
         };
         setTrackers([defaultTracker]);
         saveTrackers([defaultTracker]); // Save default to server
+        logger.warn('No trackers found, created default tracker');
       }
     };
     load();
@@ -44,6 +48,7 @@ function App() {
     const updated = [...trackers, tracker];
     setTrackers(updated);
     await saveTrackers(updated);
+    logger.success(`Added new tracker: ${tracker.name}`);
   };
 
   const handleRemoveTracker = async (id: string) => {
@@ -53,10 +58,12 @@ function App() {
       setSelectedTracker(null);
     }
     await saveTrackers(updated);
+    logger.warn(`Removed tracker: ${id}`);
   };
 
   const handleSelectTracker = (tracker: Tracker) => {
     setSelectedTracker(tracker);
+    logger.info(`View dashboard for: ${tracker.name}`);
   };
 
   const handleBack = () => {

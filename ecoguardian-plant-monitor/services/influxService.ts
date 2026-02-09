@@ -1,5 +1,6 @@
 import { InfluxDB } from '@influxdata/influxdb-client';
 import { PlantData, InfluxConfig } from '../types';
+import { logger } from './LogService';
 
 // Configuration par défaut (à adapter selon votre setup Docker)
 export const DEFAULT_CONFIG: InfluxConfig = {
@@ -50,6 +51,8 @@ export const fetchPlantDataFromInflux = async (
 ): Promise<PlantData[]> => {
   const influxDB = new InfluxDB({ url: config.url, token: config.token });
   const queryApi = influxDB.getQueryApi(config.org);
+
+  logger.info(`Fetching data from InfluxDB`, { plantId, greenhouseId, timeRange });
 
   // Construction dynamique du filtre
   let filterString = `|> filter(fn: (r) => r["_measurement"] == "monitor_plante")`;
@@ -115,9 +118,11 @@ export const fetchPlantDataFromInflux = async (
       },
       error(error) {
         // Suppressed console.error to allow handling in App.tsx without noise
+        logger.error(`Error fetching data from InfluxDB`, error);
         reject(error);
       },
       complete() {
+        logger.success(`Fetched ${results.length} records successfully.`);
         resolve(results);
       },
     });

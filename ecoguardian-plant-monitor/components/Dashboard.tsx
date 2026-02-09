@@ -9,8 +9,12 @@ import { MetricCard } from './MetricCard';
 import { VirtualPlant } from './VirtualPlant';
 import { MetricModal } from './MetricModal';
 import { PlantDetailCard } from './PlantDetailCard';
-import { ThermometerIcon, DropletsIcon, SunIcon, SproutIcon, ActivityIcon, AlertTriangleIcon, RefreshIcon, LogOutIcon, SoilHumidityIcon, MoonIcon } from './Icons';
+import { ThermometerIcon, DropletsIcon, SunIcon, SproutIcon, ActivityIcon, AlertTriangleIcon, RefreshIcon, LogOutIcon, SoilHumidityIcon, MoonIcon, ClipboardIcon, BellIcon } from './Icons';
+import { LogViewer } from './LogViewer';
 import { ThemeToggle } from './ThemeToggle';
+import { LiveIndicator } from './LiveIndicator';
+import { ToastContainer } from './ToastContainer';
+import { NotificationSettingsModal } from './NotificationSettingsModal';
 
 interface DashboardProps {
   tracker: Tracker;
@@ -28,6 +32,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
   const [timeRange, setTimeRange] = useState<string>("-1h");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [isInactive, setIsInactive] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // State for Modal
   const [selectedMetric, setSelectedMetric] = useState<{
@@ -122,6 +128,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
 
   return (
     <div className="min-h-screen pb-12 bg-[#f0fdf4] dark:bg-slate-900 transition-colors duration-300">
+
+      {/* Toast Container for Notifications */}
+      <ToastContainer />
+
       {/* Header avec Gradient et Plante Virtuelle */}
       <div className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-950 dark:to-slate-900 pb-24 pt-8 px-6 shadow-lg relative overflow-hidden transition-colors duration-500">
         {/* Cercles décoratifs en arrière-plan */}
@@ -179,19 +189,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
                   />
                 </div>
 
-                {/* Last Update Indicator */}
-                <div className={`flex items-center px-3 py-2 rounded-lg backdrop-blur-md border border-white/20 text-white font-medium text-sm
-                  ${(data.length > 0 && (Date.now() - new Date(data[data.length - 1].originalDate).getTime()) / 60000 < 5) ? 'bg-emerald-500/50' : 'bg-rose-500/50'}`}>
-                  <span className="mr-2">🕒</span>
+                {/* Live Indicator or Last Update */}
+                {!selectedDate ? (
+                  <LiveIndicator />
+                ) : (
+                  /* Historical View Indicator */
+                  <div className={`flex items-center px-3 py-2 rounded-lg backdrop-blur-md border border-white/20 text-white font-medium text-sm bg-indigo-500/50`}>
+                    <span className="mr-2">📅</span>
+                    <span>Historique</span>
+                  </div>
+                )}
+
+                {/* Last Update Detail (Smaller if live) */}
+                <div className={`flex items-center px-3 py-2 rounded-lg backdrop-blur-md border border-white/20 text-white font-medium text-xs
+                  ${(data.length > 0 && (Date.now() - new Date(data[data.length - 1].originalDate).getTime()) / 60000 < 5) ? 'bg-emerald-500/30' : 'bg-rose-500/30'}`}>
                   {data.length > 0 ? (
                     <span>
-                      Dernière maj: {new Date(data[data.length - 1].originalDate).toLocaleTimeString()}
-                      <span className="text-xs opacity-75 ml-1">
-                        ({Math.floor((Date.now() - new Date(data[data.length - 1].originalDate).getTime()) / 60000)} min)
-                      </span>
+                      {new Date(data[data.length - 1].originalDate).toLocaleTimeString()}
                     </span>
                   ) : (
-                    <span>En attente de données...</span>
+                    <span>--:--:--</span>
                   )}
                 </div>
 
@@ -212,9 +229,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
                   <span className="ml-2">Bien-être : {wellnessScore}%</span>
                 </div>
 
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowLogs(true)}
+                    className="p-2 rounded-lg backdrop-blur-md border border-white/20 text-white transition-all hover:bg-white/10 active:scale-95 bg-indigo-500/50 hover:bg-indigo-600/50 relative z-50"
+                    title="Voir les logs système"
+                  >
+                    <ClipboardIcon />
+                  </button>
+
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="p-2 rounded-lg backdrop-blur-md border border-white/20 text-white transition-all hover:bg-white/10 active:scale-95 bg-slate-500/50 hover:bg-slate-600/50 relative z-50"
+                    title="Paramètres de notification"
+                  >
+                    <BellIcon />
+                  </button>
+                </div>
+
                 <ThemeToggle className="bg-white/10 border border-white/20 text-white hover:bg-white/20 relative z-50" />
-
-
 
                 <button
                   onClick={() => window.location.href = '/authelia/logout'}
@@ -414,6 +447,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
           />
         )
       }
+
+      {/* Log Viewer Modal */}
+      <LogViewer
+        isOpen={showLogs}
+        onClose={() => setShowLogs(false)}
+      />
+
+      {/* Settings Modal */}
+      <NotificationSettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </div >
   );
 }

@@ -60,6 +60,47 @@ app.post('/api/trackers', (req, res) => {
     }
 });
 
+// POST Logs (Append to JSONL)
+app.post('/api/logs', (req, res) => {
+    const logEntry = req.body;
+    if (!logEntry || !logEntry.timestamp || !logEntry.level || !logEntry.message) {
+        return res.status(400).json({ error: "Invalid log entry" });
+    }
+
+    const logString = JSON.stringify(logEntry) + '\n';
+    const logFile = path.join(__dirname, 'data', 'logs.jsonl');
+
+    try {
+        fs.appendFileSync(logFile, logString);
+        res.status(200).json({ success: true });
+    } catch (err) {
+        console.error("Error writing log:", err);
+        res.status(500).json({ error: "Failed to write log" });
+    }
+});
+
+// GET Logs (Optional, for debugging or future feature)
+app.get('/api/logs', (req, res) => {
+    const logFile = path.join(__dirname, 'data', 'logs.jsonl');
+    if (!fs.existsSync(logFile)) {
+        return res.json([]);
+    }
+
+    // Read last 100 lines for performance
+    // Simple implementation: read all for now (optimize if file gets huge)
+    try {
+        const content = fs.readFileSync(logFile, 'utf8');
+        const logs = content.trim().split('\n').map(line => {
+            try { return JSON.parse(line); } catch (e) { return null; }
+        }).filter(Boolean);
+        // Return last 200 logs
+        res.json(logs.slice(-200).reverse());
+    } catch (err) {
+        res.status(500).json({ error: "Failed to read logs" });
+    }
+});
+
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Backend running on port ${PORT}`);

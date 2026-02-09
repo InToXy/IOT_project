@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Tracker, PlantData } from '../types';
 import { PLANT_PROFILES } from '../constants';
-import { SproutIcon, ActivityIcon, LogOutIcon, SunIcon, MoonIcon } from './Icons';
+import { SproutIcon, ActivityIcon, LogOutIcon, SunIcon, MoonIcon, ClipboardIcon, BellIcon } from './Icons';
 import { TrackerCard } from './TrackerCard';
 import { calculateWellness } from '../utils/wellness';
 import { useTheme } from '../hooks/useTheme';
 import { ThemeToggle } from './ThemeToggle';
 import { AuroraText } from './AuroraText';
+import { LogViewer } from './LogViewer';
+import { ToastContainer } from './ToastContainer';
+import { logger } from '../services/LogService';
+import { NotificationSettingsModal } from './NotificationSettingsModal';
 
 interface TrackerListProps {
     trackers: Tracker[];
@@ -19,6 +23,14 @@ interface TrackerListProps {
 export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap, onAddTracker, onRemoveTracker, onSelectTracker }) => {
     const { theme, toggleTheme } = useTheme();
     const [isAdding, setIsAdding] = useState(false);
+    const [showLogs, setShowLogs] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+
+    // Filter State
+    const [filterGreenhouse, setFilterGreenhouse] = useState<string>('all');
+    const [filterType, setFilterType] = useState<string>('all');
+    const [filterStatus, setFilterStatus] = useState<string>('all');
+
     const [newTracker, setNewTracker] = useState<Partial<Tracker>>({
         name: '',
         sensorId: '',
@@ -29,6 +41,17 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap
     const handleAdd = (e: React.FormEvent) => {
         e.preventDefault();
         if (newTracker.name && newTracker.sensorId && newTracker.greenhouseId && newTracker.plantId) {
+
+            // Check for duplicates
+            const exists = trackers.some(t =>
+                t.sensorId === newTracker.sensorId && t.greenhouseId === newTracker.greenhouseId
+            );
+
+            if (exists) {
+                logger.error(`Impossible d'ajouter: La plante ${newTracker.sensorId} dans la serre ${newTracker.greenhouseId} existe déjà.`);
+                return;
+            }
+
             onAddTracker({
                 id: crypto.randomUUID(),
                 name: newTracker.name,
@@ -41,11 +64,39 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap
         }
     };
 
-    // --- GROUPING LOGIC ---
-    const greenhouses = Array.from(new Set(trackers.map(t => t.greenhouseId))).sort();
+    // --- FILTER LOGIC ---
+    const filteredTrackers = trackers.filter(t => {
+        // Filter by Greenhouse
+        if (filterGreenhouse !== 'all' && t.greenhouseId !== filterGreenhouse) return false;
+
+        // Filter by Type
+        if (filterType !== 'all' && t.plantId !== filterType) return false;
+
+        // Filter by Status (Wellness)
+        if (filterStatus !== 'all') {
+            const data = plantDataMap.get(t.id);
+            const profile = PLANT_PROFILES.find(p => p.id === t.plantId);
+            const score = (data && profile) ? calculateWellness(data, profile) : 0;
+
+            if (filterStatus === 'critical' && score >= 50) return false; // < 50
+            if (filterStatus === 'warning' && (score < 50 || score >= 75)) return false; // 50-74
+            if (filterStatus === 'healthy' && score < 75) return false; // >= 75
+        }
+
+        return true;
+    });
+
+    // --- GROUPING LOGIC (Applied to Filtered List) ---
+    // We only show greenhouses that have at least one tracker after filtering
+    const visibleGreenhouses = Array.from(new Set(filteredTrackers.map(t => t.greenhouseId))).sort();
+
+    // Lists for dropdowns (based on ALL trackers to allow selecting any option)
+    const allGreenhouses = Array.from(new Set(trackers.map(t => t.greenhouseId))).sort();
+    const allPlantTypes = Array.from(new Set(trackers.map(t => t.plantId)));
 
     return (
         <div className="min-h-screen bg-[#f0fdf4] dark:bg-slate-900 p-8 transition-colors duration-300">
+            <ToastContainer />
             <div className="max-w-6xl mx-auto">
                 <header className="mb-10 text-center">
                     <h1 className="text-4xl font-bold text-emerald-800 dark:text-emerald-400 flex items-center justify-center gap-3 mb-2">
@@ -58,18 +109,87 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap
                 </header>
 
                 {/* Action Bar */}
-                <div className="flex justify-between items-center mb-8 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Mes Serres</h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">{trackers.length} plantes suivies dans {greenhouses.length} serres</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">
+                            {filteredTrackers.length} plantes affichées ({trackers.length} total)
+                        </p>
                     </div>
+
+                    {/* Filters Bar */}
+                    <div className="flex flex-wrap gap-2 items-center bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <select
+                            value={filterGreenhouse}
+                            onChange={(e) => setFilterGreenhouse(e.target.value)}
+                            className="bg-white dark:bg-slate-800 border-none text-sm text-slate-700 dark:text-slate-200 rounded-md py-1.5 focus:ring-emerald-500"
+                        >
+                            <option value="all">Toutes Serres</option>
+                            {allGreenhouses.map(g => <option key={g} value={g}>Serre {g}</option>)}
+                        </select>
+
+                        <select
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                            className="bg-white dark:bg-slate-800 border-none text-sm text-slate-700 dark:text-slate-200 rounded-md py-1.5 focus:ring-emerald-500"
+                        >
+                            <option value="all">Tous Types</option>
+                            {allPlantTypes.map(id => {
+                                const p = PLANT_PROFILES.find(profile => profile.id === id);
+                                return <option key={id} value={id}>{p ? p.name : id}</option>
+                            })}
+                        </select>
+
+                        <select
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            className="bg-white dark:bg-slate-800 border-none text-sm text-slate-700 dark:text-slate-200 rounded-md py-1.5 focus:ring-emerald-500"
+                        >
+                            <option value="all">Tous États</option>
+                            <option value="healthy">🌿 En forme (&ge;75%)</option>
+                            <option value="warning">⚠️ Moyen (50-75%)</option>
+                            <option value="critical">🔥 Critique (&lt;50%)</option>
+                        </select>
+
+                        {(filterGreenhouse !== 'all' || filterType !== 'all' || filterStatus !== 'all') && (
+                            <button
+                                onClick={() => {
+                                    setFilterGreenhouse('all');
+                                    setFilterType('all');
+                                    setFilterStatus('all');
+                                }}
+                                className="text-xs text-rose-500 hover:text-rose-600 font-medium px-2"
+                            >
+                                Reset
+                            </button>
+                        )}
+                    </div>
+
                     <div className="flex gap-3">
                         <button
                             onClick={() => setIsAdding(!isAdding)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-sm font-medium"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-sm font-medium whitespace-nowrap"
                         >
-                            {isAdding ? 'Annuler' : '+ Ajouter une plante'}
+                            {isAdding ? 'Annuler' : '+ Ajouter'}
                         </button>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setShowLogs(true)}
+                                className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2.5 rounded-lg transition-colors flex items-center shadow-sm"
+                                title="Voir les logs système"
+                            >
+                                <ClipboardIcon className="w-5 h-5" />
+                            </button>
+                            <button
+                                onClick={() => setShowSettings(true)}
+                                className="bg-slate-500 hover:bg-slate-600 text-white px-3 py-2.5 rounded-lg transition-colors flex items-center shadow-sm"
+                                title="Paramètres de notification"
+                            >
+                                <BellIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+
                         <button
                             onClick={toggleTheme}
                             className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 px-3 py-2.5 rounded-lg transition-colors flex items-center shadow-sm"
@@ -148,12 +268,12 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap
                     </form>
                 )}
 
-                {/* GREENHOUSE SECTIONS */}
+                {/* GREENHOUSE SECTIONS (Filtered) */}
                 <div className="space-y-12">
-                    {greenhouses.map(ghId => {
-                        const houseTrackers = trackers.filter(t => t.greenhouseId === ghId);
+                    {visibleGreenhouses.map(ghId => {
+                        const houseTrackers = filteredTrackers.filter(t => t.greenhouseId === ghId);
 
-                        // Calculate Average Score for this Greenhouse
+                        // Calculate Average Score for this Greenhouse (based on visible/filtered trackers or all? Usually visible)
                         let totalScore = 0;
                         let plantCount = 0;
 
@@ -216,7 +336,25 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap
                         <p className="text-sm mt-1">Cliquez sur "Ajouter une plante" pour commencer à surveiller vos serres.</p>
                     </div>
                 )}
+
+                {trackers.length > 0 && filteredTrackers.length === 0 && (
+                    <div className="text-center py-12 text-slate-500 bg-white/50 rounded-xl border-2 border-dashed border-slate-200 mt-8">
+                        <p className="text-lg font-medium">Aucun résultat.</p>
+                        <p className="text-sm mt-1">Essayez de modifier vos filtres.</p>
+                    </div>
+                )}
             </div>
+
+            <LogViewer
+                isOpen={showLogs}
+                onClose={() => setShowLogs(false)}
+            />
+
+            {/* Settings Modal */}
+            <NotificationSettingsModal
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+            />
         </div>
     );
 };

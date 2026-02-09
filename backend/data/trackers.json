@@ -19,5 +19,19 @@
     "sensorId": "1",
     "greenhouseId": "2",
     "plantId": "basilic"
+  },
+  {
+    "id": "5c092119-e934-43ed-81ac-110464d10f37",
+    "name": "test log",
+    "sensorId": "3",
+    "greenhouseId": "1",
+    "plantId": "orchidee"
+  },
+  {
+    "id": "ec7e2320-6d8a-4cf2-8fd9-3baf2d12a2ea",
+    "name": "cactus",
+    "sensorId": "4",
+    "greenhouseId": "1",
+    "plantId": "cactus"
   }
 ]
