@@ -122,7 +122,11 @@ export const fetchPlantDataFromInflux = async (
         reject(error);
       },
       complete() {
-        logger.success(`Fetched ${results.length} records successfully.`);
+        if (results.length > 0) {
+          logger.info(`Fetched ${results.length} records successfully.`);
+        } else {
+          logger.warn(`Fetched 0 records. Check if data exists for this range/plant.`);
+        }
         resolve(results);
       },
     });

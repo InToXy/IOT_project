@@ -127,7 +127,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
   };
 
   return (
-    <div className="min-h-screen pb-12 bg-[#f0fdf4] dark:bg-slate-900 transition-colors duration-300">
+    <div className="min-h-screen pb-12 transition-colors duration-300">
 
       {/* Toast Container for Notifications */}
       <ToastContainer />

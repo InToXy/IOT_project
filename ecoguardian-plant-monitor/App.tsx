@@ -3,6 +3,7 @@ import { Tracker, PlantProfile } from './types';
 import { PLANT_PROFILES } from './constants';
 import { TrackerList } from './components/TrackerList';
 import { Dashboard } from './components/Dashboard';
+import { useTheme } from './hooks/useTheme';
 import { usePlantMonitor } from './hooks/usePlantMonitor';
 import { fetchTrackers, saveTrackers } from './services/api';
 import { logger } from './services/LogService';
@@ -72,23 +73,34 @@ function App() {
 
   // --- RENDER ---
 
-  if (selectedTracker) {
-    return (
-      <Dashboard
-        tracker={selectedTracker}
-        onBack={handleBack}
-      />
-    );
-  }
+  // --- THEME ---
+  const { theme } = useTheme();
+
+  const backgroundStyle = {
+    backgroundImage: `url('/back/serre_${theme === 'dark' ? 'nuit' : 'jour'}.jpg')`,
+  };
 
   return (
-    <TrackerList
-      trackers={trackers}
-      plantDataMap={latestData}
-      onAddTracker={handleAddTracker}
-      onRemoveTracker={handleRemoveTracker}
-      onSelectTracker={handleSelectTracker}
-    />
+    <>
+      <div
+        className="fixed inset-0 z-[-1] bg-cover bg-center transition-all duration-1000 blur-[4px]"
+        style={backgroundStyle}
+      />
+      {selectedTracker ? (
+        <Dashboard
+          tracker={selectedTracker}
+          onBack={handleBack}
+        />
+      ) : (
+        <TrackerList
+          trackers={trackers}
+          plantDataMap={latestData}
+          onAddTracker={handleAddTracker}
+          onRemoveTracker={handleRemoveTracker}
+          onSelectTracker={handleSelectTracker}
+        />
+      )}
+    </>
   );
 }
 

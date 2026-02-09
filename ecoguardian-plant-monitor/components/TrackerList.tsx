@@ -95,7 +95,7 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap
     const allPlantTypes = Array.from(new Set(trackers.map(t => t.plantId)));
 
     return (
-        <div className="min-h-screen bg-[#f0fdf4] dark:bg-slate-900 p-8 transition-colors duration-300">
+        <div className="min-h-screen p-8 transition-colors duration-300">
             <ToastContainer />
             <div className="max-w-6xl mx-auto">
                 <header className="mb-10 text-center">
