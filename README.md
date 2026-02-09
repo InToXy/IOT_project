@@ -72,13 +72,21 @@ Tout le trafic réseau est chiffré.
 - **Fond Dynamique** : L'interface s'adapte en temps réel (Cycle Jour/Nuit) avec des transitions fluides.
 - **Notifications Configurables** : L'utilisateur peut choisir les types d'alertes (Erreur, Info, Succès) qu'il souhaite recevoir.
 
+![Logs Système](images/log.png)
+
 ### Surveillance Temps Réel
 L'application web offre une vue synthétique et esthétique.
 - **Tableau de bord** : Température, Humidité Air/Sol, Luminosité.
 - **Score de Bien-être** : Algorithme calculant la santé globale de la plante (0-100%).
 - **Plante Virtuelle** : Avatar dynamique qui change d'humeur selon les données.
 
-![Dashboard](images/interface_web_1.png)
+![Dashboard](images/interface_web.png)
+
+### Visualisation Avancée
+Pour une analyse fine, des graphiques interactifs permettent de voir l'évolution des capteurs.
+
+![Graphique Global](images/graph_plante.png)
+![Graphique Détaillé](images/graph_detaille.png)
 
 ### Base de Données Intelligente
 - Sélection parmi **9 profils de plantes** (Monstera, Cactus, Orchidée...).
@@ -86,7 +94,7 @@ L'application web offre une vue synthétique et esthétique.
 - **Persistance Centralisée** : Les configurations sont sauvegardées côté serveur (Backend Node.js), permettant le partage instantané entre tous les utilisateurs (Mobile/Desktop).
 - **Fiche Détail** : Affichage des besoins spécifiques de la plante sélectionnée.
 
-![Détails Plante](images/interface_web_2.png)
+![Détails Plante](images/info_plante.png)
 
 ---
 
