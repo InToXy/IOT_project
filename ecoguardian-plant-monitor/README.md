@@ -1,20 +1,66 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# EcoGuardian Plant Monitor (Frontend)
 
-# Run and deploy your AI Studio app
+L'application **EcoGuardian** est l'interface utilisateur du système. C'est une **Single Page Application (SPA)** moderne conçue pour visualiser en temps réel l'état des serres et des plantes.
 
-This contains everything you need to run your app locally.
+## 🛠️ Stack Technique
 
-View your app in AI Studio: https://ai.studio/apps/drive/1EFarT_iY33_4oU88aYyZey0gmCaIspPC
+- **Framework** : React 18
+- **Build Tool** : Vite (Rapide, HMR instantané)
+- **Langage** : TypeScript (Pour la robustesse du code)
+- **Styles** : Tailwind CSS (Design Utility-first) + CSS Modules
+- **Graphiques** : Recharts (Visualisation de données responsive)
+- **Données** : InfluxDB Client (Flux Query)
 
-## Run Locally
+## 🌟 Fonctionnalités Principales
 
-**Prerequisites:**  Node.js
+### 📊 Dashboard Temps Réel
+- Connexion directe à **InfluxDB** pour récupérer les métriques brutes (Température, Humidité, Luminosité).
+- Rafraîchissement automatique toutes les 10 secondes.
+- Indicateur "Live" vs "Historique".
 
+### 🧠 Logique Métier "Bien-être"
+Le frontend contient l'intelligence d'analyse des données :
+- Chaque plante a un **Profil** (Besoins min/max).
+- Un algorithme compare les données capteurs vs le Profil.
+- **Score (0-100%)** : Calculé en temps réel pour donner un indicateur simple à l'utilisateur.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 🎨 Expérience Utilisateur (UX)
+- **Mode Sombre/Clair** : Bascule automatique ou manuelle.
+- **Fond Dynamique** : L'arrière-plan change selon l'heure (Jour/Nuit) avec effet de flou.
+- **Plante Virtuelle** : Une représentation visuelle qui change d'état (Heureuse, Assoiffée, Gelée...) en fonction des données.
+
+### 💾 Architecture de Données
+
+Le frontend utilise plusieurs "Services" pour gérer ses données :
+
+| Service | Fichier | Rôle |
+| :--- | :--- | :--- |
+| **API Service** | `services/api.ts` | Discute avec le Backend pour sauver la configuration des plantes. |
+| **Influx Service** | `services/influxService.ts` | Exécute des requêtes Flux (SQL-like) vers la base de données temporelle. |
+| **Log Service** | `services/LogService.ts` | Système de journalisation interne qui synchronise avec le Backend. |
+| **Discord** | `services/discordService.ts` | Envoi de webhooks en cas d'alerte critique. |
+
+## 📦 Structure du Projet
+
+```
+src/
+├── components/         # Briques UI réutilisables (Cartes, Graphiques, Modales...)
+├── hooks/              # Logique React (usePlantMonitor, useTheme...)
+├── services/           # Couche de communication (API, Influx, Logs)
+├── utils/              # Fonctions de calcul (wellness, date format)
+├── constants.ts        # Profils de plantes (Data statique)
+├── types.ts            # Définitions TypeScript (Interfaces)
+├── App.tsx             # Point d'entrée et routing
+└── main.tsx            # Initialisation React
+```
+
+## 🔧 Configuration (.env)
+
+L'application nécessite des variables d'environnement pour se connecter aux services externes.
+
+```bash
+VITE_INFLUX_URL=https://ecoguardian.duckdns.org:8086
+VITE_INFLUX_TOKEN=...
+VITE_INFLUX_ORG=maison
+VITE_INFLUX_BUCKET=plante_data
+```

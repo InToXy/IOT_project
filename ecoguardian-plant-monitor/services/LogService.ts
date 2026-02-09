@@ -17,11 +17,31 @@ class LogService {
     private maxLogs = 200;
 
     constructor() {
-        // Load from local storage if needed, but for now we'll keep it in memory
-        // to avoid cluttering storage with old logs on reload.
-        // If persistence is needed, we can uncomment this:
-        // const saved = localStorage.getItem('app_logs');
-        // if (saved) this.logs = JSON.parse(saved);
+        this.fetchLogs();
+    }
+
+    private async fetchLogs() {
+        try {
+            const response = await fetch('/api/logs');
+            if (response.ok) {
+                const fetchedLogs: LogEntry[] = await response.json();
+                if (Array.isArray(fetchedLogs)) {
+                    // Merge fetched logs with existing logs, avoiding duplicates by ID
+                    const existingIds = new Set(this.logs.map(l => l.id));
+                    const newLogsFromBackend = fetchedLogs.filter(l => !existingIds.has(l.id));
+
+                    // Combine and sort by timestamp (newest first)
+                    this.logs = [...this.logs, ...newLogsFromBackend].sort((a, b) => b.timestamp - a.timestamp);
+
+                    // Limit to maxLogs
+                    this.logs = this.logs.slice(0, this.maxLogs);
+
+                    this.notify();
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch logs from backend", error);
+        }
     }
 
     private notify() {
@@ -43,11 +63,7 @@ class LogService {
         this.notify();
 
         // Send to backend
-        // Use relative URL assuming proxy or same host, but here we hardcode for dev/docker
-        // In production, this should be configurable.
-        // Assuming Vite proxy or direct access.
-        // For Docker, browser accesses localhost:3001 mapped.
-        fetch('http://localhost:3001/api/logs', {
+        fetch('/api/logs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

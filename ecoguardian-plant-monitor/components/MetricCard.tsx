@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangleIcon } from './Icons';
 
 interface MetricCardProps {
   title: string;
@@ -32,10 +33,16 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-2xl p-6 shadow-sm border ${isGood ? 'border-slate-100' : 'border-red-400 bg-red-50 animate-pulse'} flex items-center justify-between transition-all hover:shadow-lg hover:-translate-y-1 ${onClick ? 'cursor-pointer hover:border-emerald-200' : ''}`}
+      className={`relative bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border ${isGood ? 'border-slate-100 dark:border-slate-700' : 'border-red-400 bg-red-50 dark:bg-base-900 animate-pulse'} flex items-center justify-between transition-all hover:shadow-lg hover:-translate-y-1 ${onClick ? 'cursor-pointer hover:border-emerald-200 dark:hover:border-emerald-500/30' : ''}`}
     >
+      {!isGood && (
+        <div className="absolute top-2 right-2 text-red-500 animate-bounce">
+          <AlertTriangleIcon className="w-6 h-6 drop-shadow-md" />
+        </div>
+      )}
+
       <div>
-        <p className="text-slate-500 text-sm font-medium mb-1 uppercase tracking-wider">{title}</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">{title}</p>
         <div className="flex items-baseline gap-1">
           <span className={`text-3xl font-bold ${colorClass}`}>
             {value}
@@ -47,12 +54,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         )}
 
         {hasLimits && (
-          <div className={`text-xs mt-1 font-medium flex items-center gap-1 ${isGood ? 'text-emerald-600' : 'text-red-500'}`}>
+          <div className={`text-xs mt-1 font-medium flex items-center gap-1 ${isGood ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400 font-bold'}`}>
             {isGood ? '✅' : '⚠️'} Idéal: {min}-{max}{unit}
           </div>
         )}
 
-        {onClick && <p className="text-xs text-slate-300 mt-2">Cliquez pour voir le détail</p>}
+        {onClick && <p className="text-xs text-slate-300 dark:text-slate-600 mt-2">Cliquez pour voir le détail</p>}
       </div>
       <div className={`p-4 rounded-full ${bgColorClass} ${colorClass}`}>
         {icon}

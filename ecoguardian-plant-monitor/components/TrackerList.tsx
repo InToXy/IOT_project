@@ -99,13 +99,15 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers, plantDataMap
             <ToastContainer />
             <div className="max-w-6xl mx-auto">
                 <header className="mb-10 text-center">
-                    <h1 className="text-4xl font-bold text-emerald-800 dark:text-emerald-400 flex items-center justify-center gap-3 mb-2">
-                        <SproutIcon className="w-10 h-10" />
-                        <span>
-                            <AuroraText colors={["#34d399", "#10b981", "#2dd4bf", "#059669"]}>Eco</AuroraText>Guardian
-                        </span>
-                    </h1>
-                    <p className="text-emerald-600 dark:text-emerald-400">Tableau de bord de surveillance des serres</p>
+                    <div className="inline-block bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-8 py-4 rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/50">
+                        <h1 className="text-4xl font-bold text-emerald-800 dark:text-emerald-400 flex items-center justify-center gap-3 mb-2 drop-shadow-sm">
+                            <SproutIcon className="w-10 h-10" />
+                            <span>
+                                <AuroraText colors={["#34d399", "#10b981", "#2dd4bf", "#059669"]}>Eco</AuroraText>Guardian
+                            </span>
+                        </h1>
+                        <p className="text-emerald-700 dark:text-emerald-300 font-medium">Tableau de bord de surveillance des serres</p>
+                    </div>
                 </header>
 
                 {/* Action Bar */}

@@ -280,10 +280,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
         </div>
       </div>
 
-      {isInactive && (
-        <div className="max-w-7xl mx-auto px-6 mt-6">
-          <div className="bg-amber-500/10 border border-amber-500/50 text-amber-900 px-4 py-3 rounded-lg flex items-center shadow-lg" role="alert">
-            <div className="text-amber-500 mr-4">
+
+      <div className="max-w-7xl mx-auto px-6 -mt-16 relative z-20">
+        {isInactive && (
+          <div className="relative z-50 bg-amber-100/90 dark:bg-amber-900/80 border border-amber-500/50 text-amber-900 dark:text-amber-100 px-4 py-3 mb-14 rounded-lg flex items-center shadow-lg backdrop-blur-md" role="alert">
+            <div className="text-amber-600 dark:text-amber-400 mr-4">
               <AlertTriangleIcon />
             </div>
             <div>
@@ -291,10 +292,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tracker, onBack }) => {
               <p className="text-sm">Aucune donnée reçue depuis plus de 30 minutes. Vérifiez le capteur ou la connexion.</p>
             </div>
           </div>
-        </div>
-      )}
-
-      <div className="max-w-7xl mx-auto px-6 -mt-16 relative z-20">
+        )}
 
         {/* Détail de la Plante Sélectionnée */}
         <PlantDetailCard plant={selectedPlant} />
